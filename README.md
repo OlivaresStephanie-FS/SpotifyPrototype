@@ -23,8 +23,8 @@ This repository documents the project's development from initial setup through f
 
 The following software is required to work with this project:
 
-- Node.js (version 20 or later recommended)
-- npm
+- Docker Desktop
+- Docker Compose
 - Git
 - Visual Studio Code
 - GitHub account
@@ -34,23 +34,27 @@ The following software is required to work with this project:
 
 1. Clone the repository.
 
-    ```bash
-    git clone https://github.com/OlivaresStephanie-FS/SpotifyPrototype.git
-    ```
+   ```bash
+   git clone https://github.com/OlivaresStephanie-FS/SpotifyPrototype.git
+   ```
 
 2. Navigate to the project directory.
 
-    ```bash
-    cd pp3-spotify-app
-    ```
+   ```bash
+   cd SpotifyPrototype
+   ```
 
-3. Install project dependencies after the application has been initialized.
+3. Start the Docker development environment.
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   docker compose up
+   ```
 
-4. Create a `.env` file when configuring the backend application.
+4. Open the backend API in your browser.
+
+   ```text
+   http://localhost:3000
+   ```
 
 Additional setup instructions will be added as new project components are implemented throughout the course.
 
@@ -60,19 +64,21 @@ Additional setup instructions will be added as new project components are implem
 
 Current progress includes:
 
-- Project repository initialization
-- GitHub repository creation
-- Git branching strategy
-- Agile milestone setup
-- Initial project documentation
+- Public GitHub repository created
+- Git branching strategy established
+- Docker development environment configured
+- Express backend initialized
+- Environment variable configuration
+- GitHub Milestones, Issues, and Labels configured
+- Initial project documentation completed
 
-Project functionality will be implemented during future weekly milestones.
+Future milestones will implement Spotify authentication, frontend development, and additional application functionality.
 
 ## Environment Variables
 
-Application secrets and configuration values will be stored in a `.env` file.
+Application secrets and configuration values are stored in a `.env` file.
 
-Sensitive information such as Spotify API credentials will never be committed to the repository. Environment-specific values will be loaded from the `.env` file, which is excluded from version control through `.gitignore`.
+Sensitive information such as Spotify API credentials are never committed to the repository. Environment-specific values are loaded from the `.env` file, which is excluded from version control through `.gitignore`.
 
 ## Agile Workflow
 
@@ -83,11 +89,13 @@ Project management includes:
 - GitHub Milestones
 - GitHub Issues
 - Feature branch development
+- Pull Requests
 - Weekly SCRUM progress updates
 
 ## Links
 
 - **GitHub Repository:** <https://github.com/OlivaresStephanie-FS/SpotifyPrototype>
+- **Local Backend API:** <http://localhost:3000>
 
 ## License
 
