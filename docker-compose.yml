@@ -1,0 +1,22 @@
+services:
+    spotify-node:
+        image: node:20
+        user: node
+        working_dir: /home/node/app
+        environment:
+            - NODE_ENV=development
+        volumes:
+            - ./:/home/node/app:cached
+        ports:
+            - "3000:3000"
+        command: >
+            sh -c "cd backend &&
+                   npm install &&
+                   npm run dev"
+        restart: always
+        stdin_open: true
+        tty: true
+
+networks:
+    default:
+        name: spotify-prototype
