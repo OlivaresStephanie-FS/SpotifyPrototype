@@ -1,102 +1,194 @@
-# Spotify Prototype
+# Soli Music Search
 
-Spotify Prototype is a full-stack MERN (MongoDB, Express.js, React, and Node.js) application being developed for the Project & Portfolio III course at Full Sail University.
+A full-stack music search application built with React, Express, MongoDB, Docker, and the Spotify Web API.
 
-The purpose of this project is to build a Spotify-powered music search application while following professional Agile software development practices. Development is managed using GitHub Issues, Milestones, feature branches, and weekly SCRUM progress updates.
+This project is being developed as part of Full Sail University's Advanced Server Side Languages course using an Agile workflow throughout the duration of the project.
 
-## Project Overview
+## Features
 
-Spotify Prototype will integrate with the Spotify Web API to provide a modern music search experience based on the instructor-provided application design.
+### Completed
 
-When complete, the application will allow users to:
+#### Week 1
 
-- Authenticate with Spotify
-- Search for artists, albums, and tracks
-- View search results in a responsive user interface
-- Open artists, albums, and tracks directly in Spotify
-- Securely manage application credentials using environment variables
-- Utilize a decoupled React frontend and Express backend
-
-This repository documents the project's development from initial setup through final implementation.
-
-## Prerequisites
-
-The following software is required to work with this project:
-
-- Docker Desktop
-- Docker Compose
-- Git
-- Visual Studio Code
-- GitHub account
-- Spotify Developer account
-
-## Getting Started
-
-1. Clone the repository.
-
-   ```bash
-   git clone https://github.com/OlivaresStephanie-FS/SpotifyPrototype.git
-   ```
-
-2. Navigate to the project directory.
-
-   ```bash
-   cd SpotifyPrototype
-   ```
-
-3. Start the Docker development environment.
-
-   ```bash
-   docker compose up
-   ```
-
-4. Open the backend API in your browser.
-
-   ```text
-   http://localhost:3000
-   ```
-
-Additional setup instructions will be added as new project components are implemented throughout the course.
-
-## Current Project Status
-
-### Week 1 – Project Setup
-
-Current progress includes:
-
-- Public GitHub repository created
-- Git branching strategy established
-- Docker development environment configured
-- Express backend initialized
+- Express backend
+- Docker development environment
 - Environment variable configuration
-- GitHub Milestones, Issues, and Labels configured
-- Initial project documentation completed
+- Project documentation
+- GitHub Issues
+- GitHub Milestones
+- GitHub Project board
 
-Future milestones will implement Spotify authentication, frontend development, and additional application functionality.
+#### Week 2
+
+- Spotify Developer application
+- Spotify OAuth Authorization Code Flow
+- Spotify login endpoint
+- Spotify callback endpoint
+- MongoDB token persistence
+- Authentication status endpoint
+
+### In Progress
+
+- Backend API development
+- JWT refresh implementation
+
+### Planned
+
+- Spotify search endpoints
+- React frontend
+- Login interface
+- Artist search
+- Album search
+- Track search
+- Responsive user interface
+
+## Technology Stack
+
+### Backend
+
+- Node.js
+- Express
+- MongoDB
+- Mongoose
+
+### Frontend
+
+- React
+- Vite
+
+### Authentication
+
+- Spotify OAuth 2.0 Authorization Code Flow
+
+### Infrastructure
+
+- Docker
+- Docker Compose
+
+### Development
+
+- Git
+- GitHub
+- GitHub Issues
+- GitHub Milestones
+- GitHub Projects
+
+## Project Structure
+
+```text
+pp3-spotify-app/
+│
+├── backend/
+│   ├── config/
+│   ├── models/
+│   ├── index.js
+│   └── package.json
+│
+├── docker-compose.yml
+└── README.md
+```
+
+## Running the Project
+
+Clone the repository:
+
+```bash
+git clone https://github.com/OlivaresStephanie-FS/SpotifyPrototype.git
+```
+
+Start the development environment:
+
+```bash
+docker compose up
+```
+
+Open your browser:
+
+```text
+http://localhost:3000
+```
 
 ## Environment Variables
 
-Application secrets and configuration values are stored in a `.env` file.
+Create a `.env` file inside the `backend` directory.
 
-Sensitive information such as Spotify API credentials are never committed to the repository. Environment-specific values are loaded from the `.env` file, which is excluded from version control through `.gitignore`.
+```env
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
+SPOTIFY_REDIRECT_URI=
+MONGODB_URI=
+PORT=3000
+NODE_ENV=development
+```
+
+## Authentication Flow
+
+1. User navigates to `/login`.
+2. User is redirected to Spotify's authorization page.
+3. User authorizes the application.
+4. Spotify redirects the user to `/callback`.
+5. The backend exchanges the authorization code for an access token and refresh token.
+6. Tokens are stored in MongoDB.
+7. Authentication status can be checked using `/auth/status`.
+
+## Current API Endpoints
+
+| Method | Endpoint       | Description                            |
+| :----: | -------------- | -------------------------------------- |
+|  GET   | `/`            | Health check                           |
+|  GET   | `/login`       | Redirect user to Spotify authorization |
+|  GET   | `/callback`    | Spotify OAuth callback                 |
+|  GET   | `/auth/status` | Returns current authentication status  |
 
 ## Agile Workflow
 
-Development for this project follows an Agile workflow using GitHub.
+Development is managed using:
 
-Project management includes:
-
-- GitHub Milestones
 - GitHub Issues
-- Feature branch development
-- Pull Requests
-- Weekly SCRUM progress updates
+- GitHub Milestones
+- GitHub Projects
+- Feature branches
 
-## Links
+Each weekly assignment is developed in its own feature branch before being merged into the `development` branch.
 
-- **GitHub Repository:** <https://github.com/OlivaresStephanie-FS/SpotifyPrototype>
-- **Local Backend API:** <http://localhost:3000>
+## Roadmap
 
-## License
+### Week 1 — Project Setup
 
-This project was created for educational purposes as part of the Full Sail University Bachelor of Science in Web Development program.
+- Initialize project repository
+- Create project documentation
+- Configure Agile workflow
+- Initialize Express backend API
+- Configure environment variables
+- Configure Docker development environment
+
+### Week 2 — Spotify Authentication
+
+- Create Spotify Developer application
+- Configure Spotify environment variables
+- Implement Spotify login route
+- Implement Spotify callback route
+- Configure MongoDB JWT persistence
+- Create authentication status endpoint
+
+### Week 3 — Backend API & Token Management
+
+- Define custom backend API routes for the Spotify application
+- Implement JWT refresh functionality
+- Create middleware or a route to validate the current JWT stored in MongoDB
+- Return a boolean indicating whether the user must authenticate again
+
+### Week 4 — Frontend Application
+
+- Create a login screen for Spotify authorization
+- Enforce login when no valid JWT exists
+- Implement the frontend according to the approved project designs
+- Complete the Spotify music search application
+
+## Author
+
+**Stephanie Olivares**
+
+Full Stack Web Developer
+
+SOLINYC LLC

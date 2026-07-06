@@ -16,6 +16,19 @@ services:
         restart: always
         stdin_open: true
         tty: true
+        depends_on:
+            - spotify-mongo
+
+    spotify-mongo:
+        image: mongo:7
+        restart: always
+        ports:
+            - "27017:27017"
+        volumes:
+            - spotify-mongo-data:/data/db
+
+volumes:
+    spotify-mongo-data:
 
 networks:
     default:
