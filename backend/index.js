@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 }); // Define a route for the root URL that responds with a JSON message indicating that the Spotify Prototype API is running, along with the current environment (development or production)
 
 app.get("/login", (req, res) => {
-	const scope = "user-read-private user-read-email";
+	const scope = "user-read-private user-read-email user-top-read";
 
 	const authUrl = new URL("https://accounts.spotify.com/authorize"); // Creating a new URL object for the Spotify authorization endpoint
 
@@ -129,6 +129,122 @@ app.get("/auth/status", async (req, res) => {
 			error: "Authentication status temporarily unavailable.",
 		});
 	}
+});
+
+async function fetchSpotifyApi(spotifyPath, res) {
+	try {
+		const accessToken = await getValidAccessToken();
+
+		let response;
+		let responseText = "";
+		let data;
+
+		try {
+			response = await fetch(`https://api.spotify.com/v1${spotifyPath}`, {
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			});
+
+			responseText = await response.text();
+
+			const trimmedBody = responseText.trim();
+			const appearsToBeJson =
+				trimmedBody.startsWith("{") || trimmedBody.startsWith("[");
+
+			if (appearsToBeJson) {
+				try {
+					data = JSON.parse(trimmedBody);
+				} catch {
+					data = undefined;
+				}
+			}
+		} catch {
+			return res.status(503).json({
+				error: "Spotify service temporarily unavailable.",
+			});
+		}
+
+		if (response.ok) {
+			return res.status(200).json(data);
+		}
+
+		if (response.status === 401) {
+			return res.status(401).json({
+				error: "Spotify authentication required.",
+				message: "Please sign in with Spotify again to continue.",
+			});
+		}
+
+		const bodyTextLower = responseText.toLowerCase();
+		const jsonMessageLower = String(
+			data?.error?.message || "",
+		).toLowerCase();
+
+		if (
+			response.status === 403 &&
+			(bodyTextLower.includes("premium subscription") ||
+				jsonMessageLower.includes("premium subscription"))
+		) {
+			return res.status(403).json({
+				error: "spotify_premium_required",
+				message:
+					"Spotify currently requires the developer app owner to have an active Premium subscription before Web API requests are allowed.",
+			});
+		}
+
+		if (
+			response.status === 403 &&
+			(data?.error?.reason === "INSUFFICIENT_SCOPE" ||
+				jsonMessageLower.includes("insufficient") ||
+				bodyTextLower.includes("insufficient"))
+		) {
+			return res.status(403).json({
+				error: "Additional Spotify permissions required.",
+				message:
+					"Please sign in with Spotify again so the new OAuth scope can be granted.",
+			});
+		}
+
+		if (response.status >= 500 || response.status === 429) {
+			return res.status(503).json({
+				error: "Spotify service temporarily unavailable.",
+			});
+		}
+
+		return res.status(response.status).json({
+			error: "Spotify request failed.",
+		});
+	} catch (error) {
+		if (error instanceof SpotifyAuthRequiredError) {
+			return res.status(401).json({
+				error: "Spotify authentication required.",
+				message: error.message,
+			});
+		}
+
+		if (error instanceof SpotifyTokenServiceError) {
+			return res.status(503).json({
+				error: "Spotify service temporarily unavailable.",
+			});
+		}
+
+		return res.status(503).json({
+			error: "Spotify service temporarily unavailable.",
+		});
+	}
+}
+
+app.get("/api/spotify/profile", async (req, res) => {
+	return fetchSpotifyApi("/me", res);
+});
+
+app.get("/api/spotify/top-artists", async (req, res) => {
+	return fetchSpotifyApi("/me/top/artists", res);
+});
+
+app.get("/api/spotify/top-tracks", async (req, res) => {
+	return fetchSpotifyApi("/me/top/tracks", res);
 });
 
 app.listen(PORT, () => {

@@ -27,10 +27,16 @@ This project is being developed as part of Full Sail University's Advanced Serve
 - MongoDB token persistence
 - Authentication status endpoint
 
+#### Week 3
+
+- Reusable Spotify access-token refresh
+- Authentication status validation with refresh support
+- Personalized Spotify dashboard API routes
+- `user-top-read` OAuth scope
+
 ### In Progress
 
-- Backend API development
-- JWT refresh implementation
+- Frontend application preparation
 
 ### Planned
 
@@ -81,6 +87,7 @@ pp3-spotify-app/
 ├── backend/
 │   ├── config/
 │   ├── models/
+│   ├── services/
 │   ├── index.js
 │   └── package.json
 │
@@ -133,12 +140,31 @@ NODE_ENV=development
 
 ## Current API Endpoints
 
-| Method | Endpoint       | Description                            |
-| :----: | -------------- | -------------------------------------- |
-|  GET   | `/`            | Health check                           |
-|  GET   | `/login`       | Redirect user to Spotify authorization |
-|  GET   | `/callback`    | Spotify OAuth callback                 |
-|  GET   | `/auth/status` | Returns current authentication status  |
+| Method | Endpoint                    | Description                            |
+| :----: | --------------------------- | -------------------------------------- |
+|  GET   | `/`                         | Health check                           |
+|  GET   | `/login`                    | Redirect user to Spotify authorization |
+|  GET   | `/callback`                 | Spotify OAuth callback                 |
+|  GET   | `/auth/status`              | Returns current authentication status  |
+|  GET   | `/api/spotify/profile`      | Current Spotify user profile           |
+|  GET   | `/api/spotify/top-artists`  | Current user's top artists             |
+|  GET   | `/api/spotify/top-tracks`   | Current user's top tracks              |
+
+## Week 3 — Personalized Spotify Dashboard API
+
+Week 3 added three backend routes that call the Spotify Web API using a stored OAuth access token:
+
+- `GET /api/spotify/profile`
+- `GET /api/spotify/top-artists`
+- `GET /api/spotify/top-tracks`
+
+Login now requests the `user-top-read` scope in addition to `user-read-private` and `user-read-email`, which is required for the top artists and top tracks endpoints.
+
+OAuth login, MongoDB token persistence, access-token refresh, authentication status validation, and dashboard route integration are implemented. Each dashboard route obtains a usable access token through the shared token service before calling Spotify.
+
+During testing, Spotify returned HTTP 403 with a platform restriction: the developer app owner must have an active Premium subscription before Web API resource requests are allowed. Because of that restriction, live Spotify profile, top-artist, and top-track payloads are not currently returned for this developer app.
+
+This project does not substitute mock profile, artist, or track data for live Spotify responses. When Spotify blocks the request for Premium eligibility, the API returns an explicit `spotify_premium_required` error instead of fabricated music data.
 
 ## Agile Workflow
 
@@ -174,9 +200,10 @@ Each weekly assignment is developed in its own feature branch before being merge
 ### Week 3 — Backend API & Token Management
 
 - Define custom backend API routes for the Spotify application
-- Implement JWT refresh functionality
-- Create middleware or a route to validate the current JWT stored in MongoDB
-- Return a boolean indicating whether the user must authenticate again
+- Implement Spotify access-token refresh functionality
+- Validate stored Spotify authentication status
+- Return whether the user must authenticate again
+- Document the Spotify developer-app Premium restriction affecting live Web API responses
 
 ### Week 4 — Frontend Application
 
