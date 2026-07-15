@@ -27,16 +27,20 @@ This project is being developed as part of Full Sail University's Advanced Serve
 - MongoDB token persistence
 - Authentication status endpoint
 
-#### Week 3
-
-- Reusable Spotify access-token refresh
-- Authentication status validation with refresh support
-- Personalized Spotify dashboard API routes
-- `user-top-read` OAuth scope
-
 ### In Progress
 
-- Frontend application preparation
+#### Week 3
+
+Week 3 backend work is in progress. The following items are implemented:
+
+- Spotify OAuth authentication
+- MongoDB token persistence
+- Automatic access-token refresh
+- Authentication status endpoint
+- Personalized Spotify API routes
+- Required OAuth scopes for personalized endpoints (`user-top-read`)
+
+Week 3 is not marked complete until GitHub Issue #17 is resolved and live Spotify resource responses succeed for this developer app.
 
 ### Planned
 
@@ -152,19 +156,27 @@ NODE_ENV=development
 
 ## Week 3 — Personalized Spotify Dashboard API
 
-Week 3 added three backend routes that call the Spotify Web API using a stored OAuth access token:
+Week 3 adds three backend routes that call the Spotify Web API using a stored OAuth access token:
 
 - `GET /api/spotify/profile`
 - `GET /api/spotify/top-artists`
 - `GET /api/spotify/top-tracks`
 
-Login now requests the `user-top-read` scope in addition to `user-read-private` and `user-read-email`, which is required for the top artists and top tracks endpoints.
+Login requests the `user-top-read` scope in addition to `user-read-private` and `user-read-email`, which is required for the top artists and top tracks endpoints.
 
 OAuth login, MongoDB token persistence, access-token refresh, authentication status validation, and dashboard route integration are implemented. Each dashboard route obtains a usable access token through the shared token service before calling Spotify.
 
-During testing, Spotify returned HTTP 403 with a platform restriction: the developer app owner must have an active Premium subscription before Web API resource requests are allowed. Because of that restriction, live Spotify profile, top-artist, and top-track payloads are not currently returned for this developer app.
+Live Spotify profile, top-artist, and top-track payloads are currently blocked by an external Premium-status propagation issue on Spotify’s Developer Platform. See **Current External Blocker (Issue #17)** below.
 
 This project does not substitute mock profile, artist, or track data for live Spotify responses. When Spotify blocks the request for Premium eligibility, the API returns an explicit `spotify_premium_required` error instead of fabricated music data.
+
+## Current External Blocker (Issue #17)
+
+Spotify’s February 2026 Developer Platform update requires the developer app owner to have an active Spotify Premium subscription before Web API requests are allowed.
+
+The developer account has already been upgraded to Premium, OAuth has been re-authorized successfully, and authentication plus token refresh work correctly. Spotify is still returning HTTP 403 responses indicating the Premium status has not yet propagated.
+
+This is an external platform issue, not an application bug. Progress is tracked in GitHub Issue #17. Week 3 will remain in progress until that issue is resolved.
 
 ## Agile Workflow
 
@@ -197,13 +209,15 @@ Each weekly assignment is developed in its own feature branch before being merge
 - Configure MongoDB JWT persistence
 - Create authentication status endpoint
 
-### Week 3 — Backend API & Token Management
+### Week 3 — Backend API & Token Management (In Progress)
 
 - Define custom backend API routes for the Spotify application
 - Implement Spotify access-token refresh functionality
 - Validate stored Spotify authentication status
 - Return whether the user must authenticate again
-- Document the Spotify developer-app Premium restriction affecting live Web API responses
+- Resolve live Spotify Web API access blocked by Premium-status propagation (Issue #17)
+
+Week 3 remains open until Issue #17 is resolved.
 
 ### Week 4 — Frontend Application
 
