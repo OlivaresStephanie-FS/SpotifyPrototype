@@ -189,42 +189,12 @@ Development is managed using:
 
 Each weekly assignment is developed in its own feature branch before being merged into the `development` branch.
 
-## 📋 Roadmap
+## 🚀 Next Steps
 
-### ✅ Week 1 — Project Setup
-
-- Initialize project repository
-- Create project documentation
-- Configure Agile workflow
-- Initialize Express backend API
-- Configure environment variables
-- Configure Docker development environment
-
-### ✅ Week 2 — Spotify Authentication
-
-- Create Spotify Developer application
-- Configure Spotify environment variables
-- Implement Spotify login route
-- Implement Spotify callback route
-- Configure MongoDB JWT persistence
-- Create authentication status endpoint
-
-### 🚧 Week 3 — Backend API & Token Management (In Progress)
-
-- Define custom backend API routes for the Spotify application
-- Implement Spotify access-token refresh functionality
-- Validate stored Spotify authentication status
-- Return whether the user must authenticate again
-- Resolve live Spotify Web API access blocked by Premium-status propagation (Issue #17)
-
-Week 3 remains open until Issue #17 is resolved.
-
-### ⏳ Week 4 — Frontend Application
-
-- Create a login screen for Spotify authorization
-- Enforce login when no valid JWT exists
-- Implement the frontend according to the approved project designs
-- Complete the Spotify music search application
+- Resolve Spotify Premium propagation issue (Issue #17)
+- Complete Week 3 backend validation
+- Build the React frontend
+- Implement artist, album, and track search
 
 ## 👩‍💻 Author
 
