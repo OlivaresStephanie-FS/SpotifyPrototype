@@ -1,17 +1,17 @@
-# Soli Music Search
+# 🎵 Soli Music Search
 
 A full-stack music search application built with React, Express, MongoDB, Docker, and the Spotify Web API.
 
 This project is being developed as part of Full Sail University's Advanced Server Side Languages course using an Agile workflow throughout the duration of the project.
 
-## Features
+## ✨ Features
 
-### Completed
+### ✅ Completed
 
 #### Week 1
 
 - Express backend
-- Docker development environment
+- 🐳 Docker development environment
 - Environment variable configuration
 - Project documentation
 - GitHub Issues
@@ -20,20 +20,20 @@ This project is being developed as part of Full Sail University's Advanced Serve
 
 #### Week 2
 
-- Spotify Developer application
-- Spotify OAuth Authorization Code Flow
+- 🎧 Spotify Developer application
+- 🔒 Spotify OAuth Authorization Code Flow
 - Spotify login endpoint
 - Spotify callback endpoint
 - MongoDB token persistence
 - Authentication status endpoint
 
-### In Progress
+### 🚧 In Progress
 
 #### Week 3
 
 Week 3 backend work is in progress. The following items are implemented:
 
-- Spotify OAuth authentication
+- 🔒 Spotify OAuth authentication
 - MongoDB token persistence
 - Automatic access-token refresh
 - Authentication status endpoint
@@ -42,7 +42,7 @@ Week 3 backend work is in progress. The following items are implemented:
 
 Week 3 is not marked complete until GitHub Issue #17 is resolved and live Spotify resource responses succeed for this developer app.
 
-### Planned
+### ⏳ Planned
 
 - Spotify search endpoints
 - React frontend
@@ -52,7 +52,7 @@ Week 3 is not marked complete until GitHub Issue #17 is resolved and live Spotif
 - Track search
 - Responsive user interface
 
-## Technology Stack
+## 🛠️ Technology Stack
 
 ### Backend
 
@@ -66,13 +66,13 @@ Week 3 is not marked complete until GitHub Issue #17 is resolved and live Spotif
 - React
 - Vite
 
-### Authentication
+### 🔒 Authentication
 
-- Spotify OAuth 2.0 Authorization Code Flow
+- 🎧 Spotify OAuth 2.0 Authorization Code Flow
 
 ### Infrastructure
 
-- Docker
+- 🐳 Docker
 - Docker Compose
 
 ### Development
@@ -83,7 +83,7 @@ Week 3 is not marked complete until GitHub Issue #17 is resolved and live Spotif
 - GitHub Milestones
 - GitHub Projects
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 pp3-spotify-app/
@@ -99,7 +99,7 @@ pp3-spotify-app/
 └── README.md
 ```
 
-## Running the Project
+## 🚀 Running the Project
 
 Clone the repository:
 
@@ -119,7 +119,7 @@ Open your browser:
 http://localhost:3000
 ```
 
-## Environment Variables
+## 🔑 Environment Variables
 
 Create a `.env` file inside the `backend` directory.
 
@@ -132,7 +132,7 @@ PORT=3000
 NODE_ENV=development
 ```
 
-## Authentication Flow
+## 🔐 Authentication Flow
 
 1. User navigates to `/login`.
 2. User is redirected to Spotify's authorization page.
@@ -142,7 +142,7 @@ NODE_ENV=development
 6. Tokens are stored in MongoDB.
 7. Authentication status can be checked using `/auth/status`.
 
-## Current API Endpoints
+## 📡 Current API Endpoints
 
 | Method | Endpoint                    | Description                            |
 | :----: | --------------------------- | -------------------------------------- |
@@ -154,7 +154,7 @@ NODE_ENV=development
 |  GET   | `/api/spotify/top-artists`  | Current user's top artists             |
 |  GET   | `/api/spotify/top-tracks`   | Current user's top tracks              |
 
-## Week 3 — Personalized Spotify Dashboard API
+## 🎧 Week 3 — Personalized Spotify Dashboard API
 
 Week 3 adds three backend routes that call the Spotify Web API using a stored OAuth access token:
 
@@ -170,7 +170,7 @@ Live Spotify profile, top-artist, and top-track payloads are currently blocked b
 
 This project does not substitute mock profile, artist, or track data for live Spotify responses. When Spotify blocks the request for Premium eligibility, the API returns an explicit `spotify_premium_required` error instead of fabricated music data.
 
-## Current External Blocker (Issue #17)
+## ⚠️ Current External Blocker (Issue #17)
 
 Spotify’s February 2026 Developer Platform update requires the developer app owner to have an active Spotify Premium subscription before Web API requests are allowed.
 
@@ -178,7 +178,7 @@ The developer account has already been upgraded to Premium, OAuth has been re-au
 
 This is an external platform issue, not an application bug. Progress is tracked in GitHub Issue #17. Week 3 will remain in progress until that issue is resolved.
 
-## Agile Workflow
+## 📌 Agile Workflow
 
 Development is managed using:
 
@@ -189,9 +189,9 @@ Development is managed using:
 
 Each weekly assignment is developed in its own feature branch before being merged into the `development` branch.
 
-## Roadmap
+## 📋 Roadmap
 
-### Week 1 — Project Setup
+### ✅ Week 1 — Project Setup
 
 - Initialize project repository
 - Create project documentation
@@ -200,7 +200,7 @@ Each weekly assignment is developed in its own feature branch before being merge
 - Configure environment variables
 - Configure Docker development environment
 
-### Week 2 — Spotify Authentication
+### ✅ Week 2 — Spotify Authentication
 
 - Create Spotify Developer application
 - Configure Spotify environment variables
@@ -209,7 +209,7 @@ Each weekly assignment is developed in its own feature branch before being merge
 - Configure MongoDB JWT persistence
 - Create authentication status endpoint
 
-### Week 3 — Backend API & Token Management (In Progress)
+### 🚧 Week 3 — Backend API & Token Management (In Progress)
 
 - Define custom backend API routes for the Spotify application
 - Implement Spotify access-token refresh functionality
@@ -219,14 +219,14 @@ Each weekly assignment is developed in its own feature branch before being merge
 
 Week 3 remains open until Issue #17 is resolved.
 
-### Week 4 — Frontend Application
+### ⏳ Week 4 — Frontend Application
 
 - Create a login screen for Spotify authorization
 - Enforce login when no valid JWT exists
 - Implement the frontend according to the approved project designs
 - Complete the Spotify music search application
 
-## Author
+## 👩‍💻 Author
 
 **Stephanie Olivares**
 
