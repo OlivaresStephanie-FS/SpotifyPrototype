@@ -2,6 +2,11 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDatabase from "./config/database.js";
 import SpotifyToken from "./models/SpotifyToken.js";
+import {
+	getValidAccessToken,
+	SpotifyAuthRequiredError,
+	SpotifyTokenServiceError,
+} from "./services/spotifyToken.js";
 
 dotenv.config(); // Load environment variables from .env file
 connectDatabase(); // Connect to MongoDB database
@@ -100,21 +105,30 @@ app.get("/callback", async (req, res) => {
 }); // Catch any server errors during the token exchange process and return a 500 Internal Server Error response with the error message
 
 app.get("/auth/status", async (req, res) => {
-  const token = await SpotifyToken.findOne().sort({ createdAt: -1 });
+	try {
+		await getValidAccessToken();
 
-  if (!token) {
-    return res.json({
-      authenticated: false,
-      message: "No Spotify token found.",
-    });
-  }
+		return res.status(200).json({
+			authenticated: true,
+		});
+	} catch (error) {
+		if (error instanceof SpotifyAuthRequiredError) {
+			return res.status(200).json({
+				authenticated: false,
+				message: error.message,
+			});
+		}
 
-  return res.json({
-    authenticated: true,
-    token_type: token.tokenType,
-    expires_at: token.expiresAt,
-    is_expired: token.expiresAt <= new Date(),
-  });
+		if (error instanceof SpotifyTokenServiceError) {
+			return res.status(503).json({
+				error: "Authentication status temporarily unavailable.",
+			});
+		}
+
+		return res.status(503).json({
+			error: "Authentication status temporarily unavailable.",
+		});
+	}
 });
 
 app.listen(PORT, () => {
