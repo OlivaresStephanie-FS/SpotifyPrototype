@@ -51,7 +51,7 @@ function LoginPage() { // Component that handles the login page and Spotify auth
 	}
 
 	if (isAuthenticated) {
-		const destination = location.state?.from?.pathname || "/profile";
+		const destination = location.state?.from?.pathname || "/search";
 
 		return <Navigate to={destination} replace />;
 	}
