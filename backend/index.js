@@ -15,6 +15,12 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+function frontendRedirect(path) {
+	const base = process.env.FRONTEND_URL || "http://localhost:5173";
+
+	return `${base.replace(/\/$/, "")}${path}`;
+}
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -41,13 +47,24 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
-	const code = req.query.code; // Extracting the authorization code from the query parameters of the callback request
+	const code = req.query.code;
+	const spotifyError = req.query.error;
+
+	if (spotifyError === "access_denied") {
+		return res.redirect(
+			frontendRedirect("/login?error=access_denied"),
+		);
+	}
+
+	if (spotifyError) {
+		return res.redirect(
+			frontendRedirect("/login?error=authorization_failed"),
+		);
+	}
 
 	if (!code) {
-		return res.status(400).json({
-			error: "Authorization code is missing.",
-		});
-	} // If the authorization code is missing, return a 400 Bad Request response with an error message
+		return res.redirect(frontendRedirect("/login?error=missing_code"));
+	}
 
 	const credentials = Buffer.from(
 		`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`,
@@ -72,11 +89,10 @@ app.get("/callback", async (req, res) => {
 		const data = await response.json();
 
 		if (!response.ok) {
-			return res.status(response.status).json({
-				error: "Failed to exchange authorization code.",
-				details: data,
-			});
-		} // If the response is not OK, return the status code and error details from Spotify
+			return res.redirect(
+				frontendRedirect("/login?error=exchange_failed"),
+			);
+		} // If the response is not OK, redirect to the frontend login page with an error
 
 		const expiresAt = new Date(Date.now() + data.expires_in * 1000);
 
@@ -87,22 +103,11 @@ app.get("/callback", async (req, res) => {
 			expiresAt,
 		});
 
-		return res.json({
-			message:
-				"Spotify authentication successful. Token saved to database.",
-			token_type: data.token_type,
-			expires_in: data.expires_in,
-			expires_at: expiresAt,
-			access_token_received: Boolean(data.access_token),
-			refresh_token_received: Boolean(data.refresh_token),
-		}); // Return a JSON response indicating that the Spotify authentication was successful, along with details about the token type, expiration time, and whether the access and refresh tokens were received
+		return res.redirect(frontendRedirect("/profile"));
 	} catch (error) {
-		return res.status(500).json({
-			error: "Server error during Spotify authentication.",
-			details: error.message,
-		});
+		return res.redirect(frontendRedirect("/login?error=server_error"));
 	}
-}); // Catch any server errors during the token exchange process and return a 500 Internal Server Error response with the error message
+}); // Catch any server errors during the token exchange process and redirect to the frontend login page
 
 app.get("/auth/status", async (req, res) => {
 	try {
