@@ -58,7 +58,7 @@ function SearchPage() {
 
 			<form className="search-form" onSubmit={handleSubmit}>
 				<label className="search-form__field" htmlFor="search-query">
-					<span className="search-form__label">Query</span>
+					<span className="search-form__label">Search</span>
 					<input
 						id="search-query"
 						className="search-form__input"
@@ -66,13 +66,13 @@ function SearchPage() {
 						name="q"
 						value={query}
 						onChange={(event) => setQuery(event.target.value)}
-						placeholder="Search Spotify"
+						placeholder="Search artists, albums, or tracks"
 						autoComplete="off"
 					/>
 				</label>
 
 				<label className="search-form__field" htmlFor="search-type">
-					<span className="search-form__label">Type</span>
+					<span className="search-form__label">Search Type</span>
 					<select
 						id="search-type"
 						className="search-form__select"
