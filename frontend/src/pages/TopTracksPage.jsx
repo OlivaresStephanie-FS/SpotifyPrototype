@@ -40,13 +40,13 @@ function TopTracksPage() { // Component that displays the user's top tracks from
 	}
 
 	return (
-		<section aria-labelledby="top-tracks-heading">
+		<section className="dashboard-page" aria-labelledby="top-tracks-heading">
 			<h1 id="top-tracks-heading" className="dashboard-page__title">
 				Top Tracks
 			</h1>
 
 			{tracks.length === 0 ? (
-				<p className="dashboard-card__meta">No top tracks found.</p>
+				<p className="dashboard-empty">No top tracks found.</p>
 			) : (
 				<ul className="dashboard-list">
 					{tracks.map((track) => {

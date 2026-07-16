@@ -2,7 +2,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: calc(100vh - var(--space-2xl) * 2);
+	min-height: min(38rem, 70vh);
 	padding-block: var(--space-xl);
 }
 
@@ -11,8 +11,9 @@
 	max-width: 28rem;
 	padding: var(--space-2xl);
 	border: 1px solid var(--color-border);
-	border-radius: var(--radius-md);
+	border-radius: var(--radius-lg);
 	background-color: var(--color-surface);
+	box-shadow: var(--shadow-card);
 }
 
 .login-card__brand {
@@ -69,7 +70,7 @@
 }
 
 .login-button:hover:not(:disabled) {
-	background-color: #1ed760;
+	background-color: var(--color-accent-hover);
 }
 
 .login-button:focus-visible {
@@ -83,7 +84,17 @@
 }
 
 @media (max-width: 480px) {
+	.login-page {
+		align-items: flex-start;
+		min-height: auto;
+		padding-block: var(--space-md);
+	}
+
 	.login-card {
-		padding: var(--space-xl);
+		padding: var(--space-lg);
+	}
+
+	.login-card__title {
+		font-size: var(--font-size-xl);
 	}
 }

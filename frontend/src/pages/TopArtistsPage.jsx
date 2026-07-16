@@ -40,13 +40,13 @@ function TopArtistsPage() { // Component that displays the user's top artists fr
 	}
 
 	return (
-		<section aria-labelledby="top-artists-heading">
+		<section className="dashboard-page" aria-labelledby="top-artists-heading">
 			<h1 id="top-artists-heading" className="dashboard-page__title">
 				Top Artists
 			</h1>
 
 			{artists.length === 0 ? (
-				<p className="dashboard-card__meta">No top artists found.</p>
+				<p className="dashboard-empty">No top artists found.</p>
 			) : (
 				<ul className="dashboard-list">
 					{artists.map((artist) => (

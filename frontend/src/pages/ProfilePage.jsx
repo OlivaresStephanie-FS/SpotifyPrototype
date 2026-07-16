@@ -43,7 +43,7 @@ function ProfilePage() { // Component that displays the user's Spotify profile i
 	const profileUrl = profile?.external_urls?.spotify;
 
 	return (
-		<section aria-labelledby="profile-heading">
+		<section className="dashboard-page" aria-labelledby="profile-heading">
 			<h1 id="profile-heading" className="dashboard-page__title">
 				Profile
 			</h1>
