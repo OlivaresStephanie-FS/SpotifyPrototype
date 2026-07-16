@@ -1,7 +1,7 @@
-function AuthLoadingState() { // Component to display a loading state while checking authentication status
+function AuthLoadingState({ message = "Checking authentication…" }) { // Component to display a loading state while checking authentication
 	return (
 		<div className="auth-status" role="status" aria-live="polite">
-			<p className="auth-status__message">Checking authentication…</p>
+			<p className="auth-status__message">{message}</p>
 		</div>
 	);
 }
