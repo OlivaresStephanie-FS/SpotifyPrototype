@@ -33,19 +33,19 @@ Users authenticate with Spotify using OAuth 2.0 to securely access personalized 
 
 - 🔒 Spotify OAuth authentication
 - MongoDB token persistence
-- Automatic access-token refresh
+- 🔄 Automatic access-token refresh
 - Authentication status endpoint
-- Spotify profile endpoint
-- Spotify top artists endpoint
-- Spotify top tracks endpoint
+- 🎧 Spotify profile endpoint
+- 🎧 Spotify top artists endpoint
+- 🎧 Spotify top tracks endpoint
 - Required OAuth scopes (`user-top-read`)
-- Live endpoint validation completed
+- ✅ Live endpoint validation completed
 
 ### ⏳ Planned
 
-- Spotify search endpoints
+- 🎧 Spotify search endpoints
 - React frontend
-- Login interface
+- 🔒 Login interface
 - Artist search
 - Album search
 - Track search
@@ -159,14 +159,14 @@ Week 3 delivers a personalized Spotify dashboard backend: OAuth authentication, 
 
 Key features implemented:
 
-- Spotify OAuth authentication with required scopes (`user-read-private`, `user-read-email`, `user-top-read`)
+- 🔒 Spotify OAuth authentication with required scopes (`user-read-private`, `user-read-email`, `user-top-read`)
 - MongoDB access and refresh token persistence
-- Automatic access-token refresh via a shared token service
+- 🔄 Automatic access-token refresh via a shared token service
 - Authentication status endpoint (`GET /auth/status`)
-- Current user profile (`GET /api/spotify/profile`)
-- Top artists (`GET /api/spotify/top-artists`)
-- Top tracks (`GET /api/spotify/top-tracks`)
-- Live endpoint validation against the Spotify Web API
+- 🎧 Current user profile (`GET /api/spotify/profile`)
+- 🎧 Top artists (`GET /api/spotify/top-artists`)
+- 🎧 Top tracks (`GET /api/spotify/top-tracks`)
+- ✅ Live endpoint validation against the Spotify Web API
 
 ## 📌 Agile Workflow
 
@@ -181,7 +181,7 @@ Each weekly assignment is developed in its own feature branch before being merge
 
 ## 🚀 Next Steps
 
-- User dashboard for personalized Spotify data
+- 🎧 User dashboard for personalized Spotify data
 - React frontend application
 - Artist, album, and track search
 - Responsive UI polish
