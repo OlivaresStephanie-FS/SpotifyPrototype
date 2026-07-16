@@ -1,0 +1,154 @@
+/* Global foundation styles for Soli Music Search */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+* {
+	margin: 0;
+}
+
+:root {
+	/* Colors */
+	--color-background: #0f1115;
+	--color-surface: #1a1d24;
+	--color-text: #f3f4f6;
+	--color-text-muted: #9ca3af;
+	--color-border: #2a2f3a;
+	--color-accent: #1db954;
+
+	/* Typography */
+	--font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+	--font-size-base: 1rem;
+	--font-size-sm: 0.875rem;
+	--font-size-lg: 1.25rem;
+	--font-size-xl: 1.75rem;
+	--font-size-2xl: 2.25rem;
+	--line-height-base: 1.5;
+
+	/* Spacing */
+	--space-xs: 0.25rem;
+	--space-sm: 0.5rem;
+	--space-md: 1rem;
+	--space-lg: 1.5rem;
+	--space-xl: 2rem;
+	--space-2xl: 3rem;
+
+	/* Layout */
+	--container-max-width: 72rem;
+	--radius-md: 0.5rem;
+}
+
+html {
+	font-size: 100%;
+}
+
+body {
+	min-height: 100vh;
+	font-family: var(--font-sans);
+	font-size: var(--font-size-base);
+	line-height: var(--line-height-base);
+	color: var(--color-text);
+	background-color: var(--color-background);
+	-webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	line-height: 1.2;
+	font-weight: 600;
+}
+
+h1 {
+	font-size: var(--font-size-2xl);
+}
+
+h2 {
+	font-size: var(--font-size-xl);
+}
+
+p {
+	color: var(--color-text-muted);
+}
+
+a {
+	color: var(--color-accent);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+#root {
+	min-height: 100vh;
+}
+
+.container {
+	width: 100%;
+	max-width: var(--container-max-width);
+	margin-inline: auto;
+	padding-inline: var(--space-lg);
+}
+
+.app-layout {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.app-layout__main {
+	flex: 1;
+	padding-block: var(--space-2xl);
+}
+
+.auth-status {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--space-md);
+	padding: var(--space-lg);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background-color: var(--color-surface);
+}
+
+.auth-status__message {
+	color: var(--color-text-muted);
+}
+
+.auth-status__button {
+	padding: var(--space-sm) var(--space-md);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-md);
+	background-color: transparent;
+	color: var(--color-text);
+	cursor: pointer;
+}
+
+.auth-status__button:hover {
+	border-color: var(--color-accent);
+	color: var(--color-accent);
+}
