@@ -4,6 +4,8 @@ A full-stack music search application built with React, Express, MongoDB, Docker
 
 This project is being developed as part of Full Sail University's Advanced Server Side Languages course using an Agile workflow throughout the duration of the project.
 
+Users authenticate with Spotify using OAuth 2.0 to securely access personalized profile, top artists, and top tracks through the Spotify Web API.
+
 ## ✨ Features
 
 ### ✅ Completed
@@ -27,20 +29,17 @@ This project is being developed as part of Full Sail University's Advanced Serve
 - MongoDB token persistence
 - Authentication status endpoint
 
-### 🚧 In Progress
-
 #### Week 3
-
-Week 3 backend work is in progress. The following items are implemented:
 
 - 🔒 Spotify OAuth authentication
 - MongoDB token persistence
 - Automatic access-token refresh
 - Authentication status endpoint
-- Personalized Spotify API routes
-- Required OAuth scopes for personalized endpoints (`user-top-read`)
-
-Week 3 is not marked complete until GitHub Issue #17 is resolved and live Spotify resource responses succeed for this developer app.
+- Spotify profile endpoint
+- Spotify top artists endpoint
+- Spotify top tracks endpoint
+- Required OAuth scopes (`user-top-read`)
+- Live endpoint validation completed
 
 ### ⏳ Planned
 
@@ -156,27 +155,18 @@ NODE_ENV=development
 
 ## 🎧 Week 3 — Personalized Spotify Dashboard API
 
-Week 3 adds three backend routes that call the Spotify Web API using a stored OAuth access token:
+Week 3 delivers a personalized Spotify dashboard backend: OAuth authentication, MongoDB token persistence with automatic access-token refresh, authentication status validation, and live Web API routes that return successful Spotify responses.
 
-- `GET /api/spotify/profile`
-- `GET /api/spotify/top-artists`
-- `GET /api/spotify/top-tracks`
+Key features implemented:
 
-Login requests the `user-top-read` scope in addition to `user-read-private` and `user-read-email`, which is required for the top artists and top tracks endpoints.
-
-OAuth login, MongoDB token persistence, access-token refresh, authentication status validation, and dashboard route integration are implemented. Each dashboard route obtains a usable access token through the shared token service before calling Spotify.
-
-Live Spotify profile, top-artist, and top-track payloads are currently blocked by an external Premium-status propagation issue on Spotify’s Developer Platform. See **Current External Blocker (Issue #17)** below.
-
-This project does not substitute mock profile, artist, or track data for live Spotify responses. When Spotify blocks the request for Premium eligibility, the API returns an explicit `spotify_premium_required` error instead of fabricated music data.
-
-## ⚠️ Current External Blocker (Issue #17)
-
-Spotify’s February 2026 Developer Platform update requires the developer app owner to have an active Spotify Premium subscription before Web API requests are allowed.
-
-The developer account has already been upgraded to Premium, OAuth has been re-authorized successfully, and authentication plus token refresh work correctly. Spotify is still returning HTTP 403 responses indicating the Premium status has not yet propagated.
-
-This is an external platform issue, not an application bug. Progress is tracked in GitHub Issue #17. Week 3 will remain in progress until that issue is resolved.
+- Spotify OAuth authentication with required scopes (`user-read-private`, `user-read-email`, `user-top-read`)
+- MongoDB access and refresh token persistence
+- Automatic access-token refresh via a shared token service
+- Authentication status endpoint (`GET /auth/status`)
+- Current user profile (`GET /api/spotify/profile`)
+- Top artists (`GET /api/spotify/top-artists`)
+- Top tracks (`GET /api/spotify/top-tracks`)
+- Live endpoint validation against the Spotify Web API
 
 ## 📌 Agile Workflow
 
@@ -191,10 +181,10 @@ Each weekly assignment is developed in its own feature branch before being merge
 
 ## 🚀 Next Steps
 
-- Resolve Spotify Premium propagation issue (Issue #17)
-- Complete Week 3 backend validation
-- Build the React frontend
-- Implement artist, album, and track search
+- User dashboard for personalized Spotify data
+- React frontend application
+- Artist, album, and track search
+- Responsive UI polish
 
 ## 👩‍💻 Author
 
