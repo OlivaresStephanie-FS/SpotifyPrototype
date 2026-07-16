@@ -1,6 +1,6 @@
 import api from "./api";
 
-export function getDashboardErrorMessage(error) {
+export function getDashboardErrorMessage(error) { // Function to generate user-friendly error messages based on the error response from the backend
 	const status = error?.response?.status;
 	const data = error?.response?.data;
 
@@ -25,14 +25,14 @@ export async function getProfile() {
 	return response.data;
 }
 
-export async function getTopArtists() {
-	const response = await api.get("/api/spotify/top-artists");
+export async function getFollowedArtists() {
+	const response = await api.get("/api/spotify/followed-artists");
 
 	return response.data;
 }
 
-export async function getTopTracks() {
-	const response = await api.get("/api/spotify/top-tracks");
+export async function getSavedTracks() {
+	const response = await api.get("/api/spotify/saved-tracks");
 
 	return response.data;
 }

@@ -3,8 +3,8 @@ import { useAuth } from "../context/AuthContext";
 
 const navigationItems = [
 	{ to: "/profile", label: "Profile" },
-	{ to: "/top-artists", label: "Top Artists" },
-	{ to: "/top-tracks", label: "Top Tracks" },
+	{ to: "/followed-artists", label: "Followed Artists" },
+	{ to: "/saved-tracks", label: "Liked Songs" },
 ];
 
 function AppHeader() {

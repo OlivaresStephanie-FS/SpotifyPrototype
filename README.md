@@ -4,7 +4,7 @@ A full-stack music search application built with React, Express, MongoDB, Docker
 
 This project is being developed as part of Full Sail University's Advanced Server Side Languages course using an Agile workflow throughout the duration of the project.
 
-Users authenticate with Spotify using OAuth 2.0 to securely access personalized profile, top artists, and top tracks through the Spotify Web API.
+Users authenticate with Spotify using OAuth 2.0 to securely access their profile, followed artists, and Liked Songs (saved tracks) through the Spotify Web API.
 
 ## ✨ Features
 
@@ -36,9 +36,9 @@ Users authenticate with Spotify using OAuth 2.0 to securely access personalized 
 - 🔄 Automatic access-token refresh
 - Authentication status endpoint
 - 🎧 Spotify profile endpoint
-- 🎧 Spotify top artists endpoint
-- 🎧 Spotify top tracks endpoint
-- Required OAuth scopes (`user-top-read`)
+- 🎧 Spotify followed artists endpoint
+- 🎧 Spotify saved tracks endpoint
+- Required OAuth scopes (`user-follow-read`, `user-library-read`)
 - ✅ Live endpoint validation completed
 
 #### Week 4
@@ -46,8 +46,8 @@ Users authenticate with Spotify using OAuth 2.0 to securely access personalized 
 - React frontend application
 - 🔒 Protected authentication flow
 - 🎧 Spotify Profile page
-- 🎧 Top Artists page
-- 🎧 Top Tracks page
+- 🎧 Followed Artists page
+- 🎧 Liked Songs page
 - Shared application layout
 - SOLINYC-inspired responsive UI
 - Responsive navigation
@@ -176,9 +176,9 @@ NODE_ENV=development
 |  GET   | `/login`                    | Redirect user to Spotify authorization |
 |  GET   | `/callback`                 | Spotify OAuth callback                 |
 |  GET   | `/auth/status`              | Returns current authentication status  |
-|  GET   | `/api/spotify/profile`      | Current Spotify user profile           |
-|  GET   | `/api/spotify/top-artists`  | Current user's top artists             |
-|  GET   | `/api/spotify/top-tracks`   | Current user's top tracks              |
+|  GET   | `/api/spotify/profile`          | Current Spotify user profile           |
+|  GET   | `/api/spotify/followed-artists` | Artists the current user follows       |
+|  GET   | `/api/spotify/saved-tracks`     | Tracks saved in the user's library     |
 
 ## 🎧 Week 3 — Personalized Spotify Dashboard API
 
@@ -186,31 +186,96 @@ Week 3 delivers a personalized Spotify dashboard backend: OAuth authentication, 
 
 Key features implemented:
 
-- 🔒 Spotify OAuth authentication with required scopes (`user-read-private`, `user-read-email`, `user-top-read`)
+- 🔒 Spotify OAuth authentication with required scopes (`user-read-private`, `user-read-email`, `user-follow-read`, `user-library-read`)
 - MongoDB access and refresh token persistence
 - 🔄 Automatic access-token refresh via a shared token service
 - Authentication status endpoint (`GET /auth/status`)
 - 🎧 Current user profile (`GET /api/spotify/profile`)
-- 🎧 Top artists (`GET /api/spotify/top-artists`)
-- 🎧 Top tracks (`GET /api/spotify/top-tracks`)
+- 🎧 Followed artists (`GET /api/spotify/followed-artists`)
+- 🎧 Saved tracks (`GET /api/spotify/saved-tracks`)
 - ✅ Live endpoint validation against the Spotify Web API
 
 ## 🎵 Week 4 — React Frontend & Spotify Dashboard
 
-Week 4 delivers a React and Vite frontend for the personalized Spotify dashboard. Protected routing connects the existing Spotify authentication flow to responsive Profile, Top Artists, and Top Tracks pages within a shared application layout.
+Week 4 delivers a React and Vite frontend for the personalized Spotify dashboard. Protected routing connects the existing Spotify authentication flow to responsive Profile, Followed Artists, and Liked Songs pages within a shared application layout.
 
 Key features implemented:
 
 - React + Vite frontend application
 - 🔒 Protected routing for authenticated dashboard pages
 - 🎧 Spotify Profile page
-- 🎧 Top Artists page
-- 🎧 Top Tracks page
-- Profile dashboard previews for top artists and top tracks
+- 🎧 Followed Artists page
+- 🎧 Liked Songs page backed by Spotify's Saved Tracks endpoint
+- Profile dashboard previews for followed artists and liked songs
 - SOLINYC-inspired responsive theme
 - Shared loading, error, and empty states
 - 🐳 Integration with the existing Docker development environment
 - ✅ Frontend production build validation
+
+## 🎯 Portfolio Improvement
+
+The application originally displayed Spotify's Top Artists and Top Tracks using Spotify's affinity endpoints. During portfolio validation, these endpoints frequently returned empty results for newer Spotify accounts because Spotify only generates affinity data after sufficient listening history.
+
+To improve the user experience while still demonstrating authenticated Spotify Web API integration, the application now uses:
+
+- Followed Artists
+- Liked Songs (Spotify Saved Tracks)
+
+These endpoints provide real user-library data as soon as a user follows artists or saves tracks. This produces a more representative portfolio demonstration for both new and established Spotify users.
+
+### Engineering rationale
+
+The objective of the project is to demonstrate:
+
+- OAuth authentication
+- Protected routes
+- Authenticated Spotify Web API requests
+- Personalized user-data rendering
+- A responsive React UI
+- Loading and error-state handling
+
+Followed Artists and Liked Songs satisfy all of these project objectives while providing meaningful data without depending on Spotify affinity-history generation.
+
+### Technical changes
+
+The OAuth scope requirements changed from:
+
+```text
+user-top-read
+```
+
+to:
+
+```text
+user-follow-read
+user-library-read
+```
+
+The existing profile scopes remain in place:
+
+```text
+user-read-private
+user-read-email
+```
+
+Additional implementation changes:
+
+- Top Artists was replaced with Followed Artists.
+- Top Tracks was replaced with Liked Songs.
+- Profile dashboard previews now display followed artists and liked songs.
+- Navigation labels were updated to match the new features.
+- The `/saved-tracks` frontend route intentionally remains unchanged because it maps directly to Spotify's Saved Tracks API endpoint, while the interface uses Spotify's consumer-facing term **Liked Songs**.
+
+### Additional UI improvements
+
+- Artist follower counts are read from `artist.followers.total`.
+- Large follower counts use compact formatting such as `1.2M` and `842K`.
+- Up to three genres are displayed from `artist.genres` when available.
+- Graceful fallback text is shown when Spotify omits optional follower or genre data.
+
+### Validation
+
+The application was re-authorized with `user-follow-read` and `user-library-read` and verified against a real Spotify account. Followed Artists, Liked Songs, profile dashboard previews, navigation, authenticated API access, loading states, and error handling were validated with live user-library data.
 
 ## 📌 Agile Workflow
 

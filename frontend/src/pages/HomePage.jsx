@@ -13,7 +13,7 @@ function HomePage() { // Component that serves as the landing page of the applic
 					Soli Music Search
 				</h1>
 				<p className="home-page__description">
-					Explore your Spotify profile, favorite artists, and top tracks in
+					Explore your Spotify profile, followed artists, and saved tracks in
 					one focused experience.
 				</p>
 
@@ -22,11 +22,11 @@ function HomePage() { // Component that serves as the landing page of the applic
 						<Link className="home-page__link" to="/profile">
 							View Profile
 						</Link>
-						<Link className="home-page__link" to="/top-artists">
-							Top Artists
+						<Link className="home-page__link" to="/followed-artists">
+							Followed Artists
 						</Link>
-						<Link className="home-page__link" to="/top-tracks">
-							Top Tracks
+						<Link className="home-page__link" to="/saved-tracks">
+							Saved Tracks
 						</Link>
 					</div>
 				) : null}

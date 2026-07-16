@@ -15,7 +15,7 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-function frontendRedirect(path) {
+function frontendRedirect(path) { // Function to construct the frontend redirect URL for the given path
 	const base = process.env.FRONTEND_URL || "http://localhost:5173";
 
 	return `${base.replace(/\/$/, "")}${path}`;
@@ -30,20 +30,33 @@ app.get("/", (req, res) => {
 	});
 }); // Define a route for the root URL that responds with a JSON message indicating that the Spotify Prototype API is running, along with the current environment (development or production)
 
-app.get("/login", (req, res) => {
-	const scope = "user-read-private user-read-email user-top-read";
+const SPOTIFY_SCOPES =
+	"user-read-private user-read-email user-follow-read user-library-read";
 
-	const authUrl = new URL("https://accounts.spotify.com/authorize"); // Creating a new URL object for the Spotify authorization endpoint
+function buildSpotifyAuthorizeUrl({ showDialog = false } = {}) {
+	const authUrl = new URL("https://accounts.spotify.com/authorize");
 
-	authUrl.searchParams.append("response_type", "code"); // Adding query parameters to the URL
-	authUrl.searchParams.append("client_id", process.env.SPOTIFY_CLIENT_ID); // Adding the client ID from environment variables
-	authUrl.searchParams.append("scope", scope); // Adding the requested scopes for the authorization
+	authUrl.searchParams.append("response_type", "code");
+	authUrl.searchParams.append("client_id", process.env.SPOTIFY_CLIENT_ID);
+	authUrl.searchParams.append("scope", SPOTIFY_SCOPES);
 	authUrl.searchParams.append(
 		"redirect_uri",
 		process.env.SPOTIFY_REDIRECT_URI,
-	); // Adding the redirect URI from environment variables
+	);
 
-	res.redirect(authUrl.toString());
+	if (showDialog) {
+		authUrl.searchParams.append("show_dialog", "true");
+	}
+
+	return authUrl.toString();
+}
+
+app.get("/login", (req, res) => {
+	res.redirect(buildSpotifyAuthorizeUrl());
+});
+
+app.get("/reauthorize", (req, res) => {
+	res.redirect(buildSpotifyAuthorizeUrl({ showDialog: true }));
 });
 
 app.get("/callback", async (req, res) => {
@@ -244,12 +257,12 @@ app.get("/api/spotify/profile", async (req, res) => {
 	return fetchSpotifyApi("/me", res);
 });
 
-app.get("/api/spotify/top-artists", async (req, res) => {
-	return fetchSpotifyApi("/me/top/artists", res);
+app.get("/api/spotify/followed-artists", async (req, res) => {
+	return fetchSpotifyApi("/me/following?type=artist&limit=20", res);
 });
 
-app.get("/api/spotify/top-tracks", async (req, res) => {
-	return fetchSpotifyApi("/me/top/tracks", res);
+app.get("/api/spotify/saved-tracks", async (req, res) => {
+	return fetchSpotifyApi("/me/tracks?limit=20", res);
 });
 
 app.listen(PORT, () => {
