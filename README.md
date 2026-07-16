@@ -1,17 +1,19 @@
-# Soli Music Search
+# 🎵 Soli Music Search
 
 A full-stack music search application built with React, Express, MongoDB, Docker, and the Spotify Web API.
 
 This project is being developed as part of Full Sail University's Advanced Server Side Languages course using an Agile workflow throughout the duration of the project.
 
-## Features
+Users authenticate with Spotify using OAuth 2.0 to securely access personalized profile, top artists, and top tracks through the Spotify Web API.
 
-### Completed
+## ✨ Features
+
+### ✅ Completed
 
 #### Week 1
 
 - Express backend
-- Docker development environment
+- 🐳 Docker development environment
 - Environment variable configuration
 - Project documentation
 - GitHub Issues
@@ -20,29 +22,36 @@ This project is being developed as part of Full Sail University's Advanced Serve
 
 #### Week 2
 
-- Spotify Developer application
-- Spotify OAuth Authorization Code Flow
+- 🎧 Spotify Developer application
+- 🔒 Spotify OAuth Authorization Code Flow
 - Spotify login endpoint
 - Spotify callback endpoint
 - MongoDB token persistence
 - Authentication status endpoint
 
-### In Progress
+#### Week 3
 
-- Backend API development
-- JWT refresh implementation
+- 🔒 Spotify OAuth authentication
+- MongoDB token persistence
+- 🔄 Automatic access-token refresh
+- Authentication status endpoint
+- 🎧 Spotify profile endpoint
+- 🎧 Spotify top artists endpoint
+- 🎧 Spotify top tracks endpoint
+- Required OAuth scopes (`user-top-read`)
+- ✅ Live endpoint validation completed
 
-### Planned
+### ⏳ Planned
 
-- Spotify search endpoints
+- 🎧 Spotify search endpoints
 - React frontend
-- Login interface
+- 🔒 Login interface
 - Artist search
 - Album search
 - Track search
 - Responsive user interface
 
-## Technology Stack
+## 🛠️ Technology Stack
 
 ### Backend
 
@@ -56,13 +65,13 @@ This project is being developed as part of Full Sail University's Advanced Serve
 - React
 - Vite
 
-### Authentication
+### 🔒 Authentication
 
-- Spotify OAuth 2.0 Authorization Code Flow
+- 🎧 Spotify OAuth 2.0 Authorization Code Flow
 
 ### Infrastructure
 
-- Docker
+- 🐳 Docker
 - Docker Compose
 
 ### Development
@@ -73,7 +82,7 @@ This project is being developed as part of Full Sail University's Advanced Serve
 - GitHub Milestones
 - GitHub Projects
 
-## Project Structure
+## 📁 Project Structure
 
 ```text
 pp3-spotify-app/
@@ -81,6 +90,7 @@ pp3-spotify-app/
 ├── backend/
 │   ├── config/
 │   ├── models/
+│   ├── services/
 │   ├── index.js
 │   └── package.json
 │
@@ -88,7 +98,7 @@ pp3-spotify-app/
 └── README.md
 ```
 
-## Running the Project
+## 🚀 Running the Project
 
 Clone the repository:
 
@@ -108,7 +118,7 @@ Open your browser:
 http://localhost:3000
 ```
 
-## Environment Variables
+## 🔑 Environment Variables
 
 Create a `.env` file inside the `backend` directory.
 
@@ -121,7 +131,7 @@ PORT=3000
 NODE_ENV=development
 ```
 
-## Authentication Flow
+## 🔐 Authentication Flow
 
 1. User navigates to `/login`.
 2. User is redirected to Spotify's authorization page.
@@ -131,16 +141,34 @@ NODE_ENV=development
 6. Tokens are stored in MongoDB.
 7. Authentication status can be checked using `/auth/status`.
 
-## Current API Endpoints
+## 📡 Current API Endpoints
 
-| Method | Endpoint       | Description                            |
-| :----: | -------------- | -------------------------------------- |
-|  GET   | `/`            | Health check                           |
-|  GET   | `/login`       | Redirect user to Spotify authorization |
-|  GET   | `/callback`    | Spotify OAuth callback                 |
-|  GET   | `/auth/status` | Returns current authentication status  |
+| Method | Endpoint                    | Description                            |
+| :----: | --------------------------- | -------------------------------------- |
+|  GET   | `/`                         | Health check                           |
+|  GET   | `/login`                    | Redirect user to Spotify authorization |
+|  GET   | `/callback`                 | Spotify OAuth callback                 |
+|  GET   | `/auth/status`              | Returns current authentication status  |
+|  GET   | `/api/spotify/profile`      | Current Spotify user profile           |
+|  GET   | `/api/spotify/top-artists`  | Current user's top artists             |
+|  GET   | `/api/spotify/top-tracks`   | Current user's top tracks              |
 
-## Agile Workflow
+## 🎧 Week 3 — Personalized Spotify Dashboard API
+
+Week 3 delivers a personalized Spotify dashboard backend: OAuth authentication, MongoDB token persistence with automatic access-token refresh, authentication status validation, and live Web API routes that return successful Spotify responses.
+
+Key features implemented:
+
+- 🔒 Spotify OAuth authentication with required scopes (`user-read-private`, `user-read-email`, `user-top-read`)
+- MongoDB access and refresh token persistence
+- 🔄 Automatic access-token refresh via a shared token service
+- Authentication status endpoint (`GET /auth/status`)
+- 🎧 Current user profile (`GET /api/spotify/profile`)
+- 🎧 Top artists (`GET /api/spotify/top-artists`)
+- 🎧 Top tracks (`GET /api/spotify/top-tracks`)
+- ✅ Live endpoint validation against the Spotify Web API
+
+## 📌 Agile Workflow
 
 Development is managed using:
 
@@ -151,41 +179,14 @@ Development is managed using:
 
 Each weekly assignment is developed in its own feature branch before being merged into the `development` branch.
 
-## Roadmap
+## 🚀 Next Steps
 
-### Week 1 — Project Setup
+- 🎧 User dashboard for personalized Spotify data
+- React frontend application
+- Artist, album, and track search
+- Responsive UI polish
 
-- Initialize project repository
-- Create project documentation
-- Configure Agile workflow
-- Initialize Express backend API
-- Configure environment variables
-- Configure Docker development environment
-
-### Week 2 — Spotify Authentication
-
-- Create Spotify Developer application
-- Configure Spotify environment variables
-- Implement Spotify login route
-- Implement Spotify callback route
-- Configure MongoDB JWT persistence
-- Create authentication status endpoint
-
-### Week 3 — Backend API & Token Management
-
-- Define custom backend API routes for the Spotify application
-- Implement JWT refresh functionality
-- Create middleware or a route to validate the current JWT stored in MongoDB
-- Return a boolean indicating whether the user must authenticate again
-
-### Week 4 — Frontend Application
-
-- Create a login screen for Spotify authorization
-- Enforce login when no valid JWT exists
-- Implement the frontend according to the approved project designs
-- Complete the Spotify music search application
-
-## Author
+## 👩‍💻 Author
 
 **Stephanie Olivares**
 
