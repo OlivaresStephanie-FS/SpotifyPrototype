@@ -33,14 +33,10 @@
 }
 
 .app-brand__mark {
-	display: inline-grid;
-	place-items: center;
-	width: 2rem;
+	width: auto;
 	height: 2rem;
-	border-radius: 50%;
-	background-color: var(--color-accent);
-	color: var(--color-accent-contrast);
-	font-size: var(--font-size-lg);
+	flex-shrink: 0;
+	object-fit: contain;
 }
 
 .app-nav {
@@ -87,7 +83,13 @@
 	padding-block: var(--space-lg);
 }
 
+.app-footer__identity {
+	display: grid;
+	gap: var(--space-xs);
+}
+
 .app-footer__brand,
+.app-footer__credit,
 .app-footer__attribution {
 	font-size: var(--font-size-sm);
 }

@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import solinycLogo from "../assets/solinyc-logo-512.png";
 
 const navigationItems = [
 	{ to: "/profile", label: "Profile" },
@@ -16,9 +17,12 @@ function AppHeader() {
 		<header className="app-header">
 			<div className="container app-header__inner">
 				<NavLink className="app-brand" to="/" aria-label="Soli Music Search home">
-					<span className="app-brand__mark" aria-hidden="true">
-						♪
-					</span>
+					<img
+						className="app-brand__mark"
+						src={solinycLogo}
+						alt=""
+						aria-hidden="true"
+					/>
 					<span>Soli Music Search</span>
 				</NavLink>
 
