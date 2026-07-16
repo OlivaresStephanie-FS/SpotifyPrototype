@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-function AppLayout() {
+function AppLayout() { // Main layout component that wraps the application and renders the current route's component
 	return (
 		<div className="app-layout">
 			<main className="app-layout__main">

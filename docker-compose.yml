@@ -25,7 +25,8 @@ services:
         working_dir: /home/node/app
         environment:
             - NODE_ENV=development
-            - VITE_API_BASE_URL=http://localhost:3000
+            - VITE_API_BASE_URL=
+            - API_PROXY_TARGET=http://spotify-node:3000
         volumes:
             - ./frontend:/home/node/app:cached
         ports:
@@ -36,6 +37,8 @@ services:
         restart: always
         stdin_open: true
         tty: true
+        depends_on:
+            - spotify-node
 
     spotify-mongo:
         image: mongo:7
