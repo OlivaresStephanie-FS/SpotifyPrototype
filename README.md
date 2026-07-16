@@ -41,15 +41,26 @@ Users authenticate with Spotify using OAuth 2.0 to securely access personalized 
 - Required OAuth scopes (`user-top-read`)
 - ✅ Live endpoint validation completed
 
+#### Week 4
+
+- React frontend application
+- 🔒 Protected authentication flow
+- 🎧 Spotify Profile page
+- 🎧 Top Artists page
+- 🎧 Top Tracks page
+- Shared application layout
+- SOLINYC-inspired responsive UI
+- Responsive navigation
+- Shared loading, error, and empty state components
+- Profile dashboard previews
+- ✅ Frontend validation completed
+
 ### ⏳ Planned
 
 - 🎧 Spotify search endpoints
-- React frontend
-- 🔒 Login interface
 - Artist search
 - Album search
 - Track search
-- Responsive user interface
 
 ## 🛠️ Technology Stack
 
@@ -93,6 +104,22 @@ pp3-spotify-app/
 │   ├── services/
 │   ├── index.js
 │   └── package.json
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── layouts/
+│   │   ├── pages/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── styles/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── package.json
+│   └── vite.config.js
 │
 ├── docker-compose.yml
 └── README.md
@@ -168,6 +195,23 @@ Key features implemented:
 - 🎧 Top tracks (`GET /api/spotify/top-tracks`)
 - ✅ Live endpoint validation against the Spotify Web API
 
+## 🎵 Week 4 — React Frontend & Spotify Dashboard
+
+Week 4 delivers a React and Vite frontend for the personalized Spotify dashboard. Protected routing connects the existing Spotify authentication flow to responsive Profile, Top Artists, and Top Tracks pages within a shared application layout.
+
+Key features implemented:
+
+- React + Vite frontend application
+- 🔒 Protected routing for authenticated dashboard pages
+- 🎧 Spotify Profile page
+- 🎧 Top Artists page
+- 🎧 Top Tracks page
+- Profile dashboard previews for top artists and top tracks
+- SOLINYC-inspired responsive theme
+- Shared loading, error, and empty states
+- 🐳 Integration with the existing Docker development environment
+- ✅ Frontend production build validation
+
 ## 📌 Agile Workflow
 
 Development is managed using:
@@ -181,10 +225,12 @@ Each weekly assignment is developed in its own feature branch before being merge
 
 ## 🚀 Next Steps
 
-- 🎧 User dashboard for personalized Spotify data
-- React frontend application
-- Artist, album, and track search
-- Responsive UI polish
+- 🎧 Spotify search
+- Favorites
+- Playlists
+- Recently Played
+- Listening insights
+- Music player integration
 
 ## 👩‍💻 Author
 
