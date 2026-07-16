@@ -3,22 +3,26 @@ import AuthLoadingState from "../components/AuthLoadingState";
 import AuthErrorState from "../components/AuthErrorState";
 import {
 	getDashboardErrorMessage,
-	getTopTracks,
+	getSavedTracks,
 } from "../services/spotifyService";
 import "../styles/dashboard.css";
 
-function TopTracksPage() { // Component that displays the user's top tracks from Spotify
+function SavedTracksPage() {
 	const [tracks, setTracks] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState(null);
 
-	const loadTopTracks = useCallback(async () => {
+	const loadSavedTracks = useCallback(async () => {
 		setIsLoading(true);
 		setError(null);
 
 		try {
-			const data = await getTopTracks();
-			setTracks(data?.items ?? []);
+			const data = await getSavedTracks();
+			setTracks(
+				(data?.items ?? [])
+					.map((item) => item?.track)
+					.filter(Boolean),
+			);
 		} catch (err) {
 			setTracks([]);
 			setError(getDashboardErrorMessage(err));
@@ -28,25 +32,28 @@ function TopTracksPage() { // Component that displays the user's top tracks from
 	}, []);
 
 	useEffect(() => {
-		loadTopTracks();
-	}, [loadTopTracks]);
+		loadSavedTracks();
+	}, [loadSavedTracks]);
 
 	if (isLoading) {
-		return <AuthLoadingState message="Loading top tracks…" />;
+		return <AuthLoadingState message="Loading saved tracks…" />;
 	}
 
 	if (error) {
-		return <AuthErrorState message={error} onRetry={loadTopTracks} />;
+		return <AuthErrorState message={error} onRetry={loadSavedTracks} />;
 	}
 
 	return (
-		<section className="dashboard-page" aria-labelledby="top-tracks-heading">
-			<h1 id="top-tracks-heading" className="dashboard-page__title">
-				Top Tracks
+		<section
+			className="dashboard-page"
+			aria-labelledby="saved-tracks-heading"
+		>
+			<h1 id="saved-tracks-heading" className="dashboard-page__title">
+				Liked Songs
 			</h1>
 
 			{tracks.length === 0 ? (
-				<p className="dashboard-empty">No top tracks found.</p>
+				<p className="dashboard-empty">No saved tracks found.</p>
 			) : (
 				<ul className="dashboard-list">
 					{tracks.map((track) => {
@@ -73,7 +80,7 @@ function TopTracksPage() { // Component that displays the user's top tracks from
 									</p>
 									{trackUrl ? (
 										<a
-											className="dashboard-card__link"
+											className="dashboard-card__link dashboard-card__link--spotify"
 											href={trackUrl}
 											target="_blank"
 											rel="noopener noreferrer"
@@ -91,4 +98,4 @@ function TopTracksPage() { // Component that displays the user's top tracks from
 	);
 }
 
-export default TopTracksPage;
+export default SavedTracksPage;

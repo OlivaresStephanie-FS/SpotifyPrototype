@@ -4,8 +4,8 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProfilePage from "../pages/ProfilePage";
-import TopArtistsPage from "../pages/TopArtistsPage";
-import TopTracksPage from "../pages/TopTracksPage";
+import FollowedArtistsPage from "../pages/FollowedArtistsPage";
+import SavedTracksPage from "../pages/SavedTracksPage";
 
 function AppRoutes() { // Component that defines the application's routes and their corresponding components
 	return (
@@ -16,8 +16,11 @@ function AppRoutes() { // Component that defines the application's routes and th
 
 				<Route element={<ProtectedRoute />}>
 					<Route path="/profile" element={<ProfilePage />} />
-					<Route path="/top-artists" element={<TopArtistsPage />} />
-					<Route path="/top-tracks" element={<TopTracksPage />} />
+					<Route
+						path="/followed-artists"
+						element={<FollowedArtistsPage />}
+					/>
+					<Route path="/saved-tracks" element={<SavedTracksPage />} />
 				</Route>
 			</Route>
 		</Routes>

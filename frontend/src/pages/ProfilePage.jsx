@@ -5,8 +5,8 @@ import AuthErrorState from "../components/AuthErrorState";
 import {
 	getDashboardErrorMessage,
 	getProfile,
-	getTopArtists,
-	getTopTracks,
+	getFollowedArtists,
+	getSavedTracks,
 } from "../services/spotifyService";
 import "../styles/dashboard.css";
 
@@ -29,8 +29,8 @@ function ProfilePage() { // Component that displays the user's Spotify profile i
 			const [profileResult, artistsResult, tracksResult] =
 				await Promise.allSettled([
 					getProfile(),
-					getTopArtists(),
-					getTopTracks(),
+					getFollowedArtists(),
+					getSavedTracks(),
 				]);
 
 			setProfile(
@@ -38,12 +38,15 @@ function ProfilePage() { // Component that displays the user's Spotify profile i
 			);
 			setArtists(
 				artistsResult.status === "fulfilled"
-					? (artistsResult.value?.items ?? []).slice(0, 5)
+					? (artistsResult.value?.artists?.items ?? []).slice(0, 5)
 					: [],
 			);
 			setTracks(
 				tracksResult.status === "fulfilled"
-					? (tracksResult.value?.items ?? []).slice(0, 5)
+					? (tracksResult.value?.items ?? [])
+							.map((item) => item?.track)
+							.filter(Boolean)
+							.slice(0, 5)
 					: [],
 			);
 			setErrors({
@@ -127,15 +130,18 @@ function ProfilePage() { // Component that displays the user's Spotify profile i
 				>
 					<div className="dashboard-preview__header">
 						<div>
-							<p className="dashboard-preview__eyebrow">In rotation</p>
+							<p className="dashboard-preview__eyebrow">Following</p>
 							<h2
 								id="profile-artists-heading"
 								className="dashboard-preview__title"
 							>
-								Top Artists
+								Followed Artists
 							</h2>
 						</div>
-						<Link className="dashboard-preview__link" to="/top-artists">
+						<Link
+							className="dashboard-preview__link"
+							to="/followed-artists"
+						>
 							View All
 						</Link>
 					</div>
@@ -147,7 +153,7 @@ function ProfilePage() { // Component that displays the user's Spotify profile i
 						/>
 					) : artists.length === 0 ? (
 						<p className="dashboard-empty dashboard-empty--compact">
-							No top artists found yet.
+							No followed artists found yet.
 						</p>
 					) : (
 						<ul className="dashboard-preview__list">
@@ -175,15 +181,15 @@ function ProfilePage() { // Component that displays the user's Spotify profile i
 				>
 					<div className="dashboard-preview__header">
 						<div>
-							<p className="dashboard-preview__eyebrow">Most played</p>
+							<p className="dashboard-preview__eyebrow">Your library</p>
 							<h2
 								id="profile-tracks-heading"
 								className="dashboard-preview__title"
 							>
-								Top Tracks
+								Liked Songs
 							</h2>
 						</div>
-						<Link className="dashboard-preview__link" to="/top-tracks">
+						<Link className="dashboard-preview__link" to="/saved-tracks">
 							View All
 						</Link>
 					</div>
@@ -195,7 +201,7 @@ function ProfilePage() { // Component that displays the user's Spotify profile i
 						/>
 					) : tracks.length === 0 ? (
 						<p className="dashboard-empty dashboard-empty--compact">
-							No top tracks found yet.
+							No saved tracks found yet.
 						</p>
 					) : (
 						<ul className="dashboard-preview__list">
