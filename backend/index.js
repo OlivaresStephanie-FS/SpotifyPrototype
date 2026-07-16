@@ -51,15 +51,15 @@ function buildSpotifyAuthorizeUrl({ showDialog = false } = {}) {
 	return authUrl.toString();
 }
 
-app.get("/login", (req, res) => {
+app.get("/login", (req, res) => { // Route to initiate the Spotify authorization flow by redirecting the user to the Spotify authorization URL
 	res.redirect(buildSpotifyAuthorizeUrl());
 });
 
-app.get("/reauthorize", (req, res) => {
+app.get("/reauthorize", (req, res) => { // Route to initiate the Spotify reauthorization flow by redirecting the user to the Spotify authorization URL with the show_dialog parameter set to true
 	res.redirect(buildSpotifyAuthorizeUrl({ showDialog: true }));
 });
 
-app.get("/callback", async (req, res) => {
+app.get("/callback", async (req, res) => { // Route to handle the callback from Spotify after the user authorizes the application, exchanging the authorization code for an access token and refresh token, and storing them in the database
 	const code = req.query.code;
 	const spotifyError = req.query.error;
 
@@ -116,7 +116,7 @@ app.get("/callback", async (req, res) => {
 			expiresAt,
 		});
 
-		return res.redirect(frontendRedirect("/profile"));
+		return res.redirect(frontendRedirect("/search"));
 	} catch (error) {
 		return res.redirect(frontendRedirect("/login?error=server_error"));
 	}
@@ -263,6 +263,204 @@ app.get("/api/spotify/followed-artists", async (req, res) => {
 
 app.get("/api/spotify/saved-tracks", async (req, res) => {
 	return fetchSpotifyApi("/me/tracks?limit=20", res);
+});
+
+const SEARCH_TYPES = new Set(["artist", "album", "track"]);
+
+function formatArtistNames(artists) {
+	if (!Array.isArray(artists) || artists.length === 0) {
+		return null;
+	}
+
+	return artists
+		.map((artist) => artist?.name)
+		.filter(Boolean)
+		.join(", ");
+}
+
+function normalizeSearchResult(item, type) {
+	let image = null;
+	let subtitle = null;
+
+	if (type === "artist") {
+		image = item.images?.[0]?.url ?? null;
+		subtitle =
+			Array.isArray(item.genres) && item.genres.length > 0
+				? item.genres.slice(0, 3).join(", ")
+				: null;
+	} else if (type === "album") {
+		image = item.images?.[0]?.url ?? null;
+		subtitle = formatArtistNames(item.artists);
+	} else if (type === "track") {
+		image = item.album?.images?.[0]?.url ?? null;
+		const artists = formatArtistNames(item.artists);
+		const albumName = item.album?.name || null;
+		subtitle = [artists, albumName].filter(Boolean).join(" • ") || null;
+	}
+
+	return {
+		id: item.id,
+		name: item.name,
+		type: item.type || type,
+		image,
+		subtitle,
+		external_urls: {
+			spotify: item.external_urls?.spotify ?? null,
+		},
+	};
+}
+
+app.get("/api/spotify/search", async (req, res) => {
+	const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+	const type =
+		typeof req.query.type === "string" ? req.query.type.trim().toLowerCase() : "";
+
+	if (!q) {
+		return res.status(400).json({
+			error: "Search query is required.",
+			message: 'Provide a non-empty "q" query parameter.',
+		});
+	}
+
+	if (!SEARCH_TYPES.has(type)) {
+		return res.status(400).json({
+			error: "Invalid search type.",
+			message: 'Supported types are "artist", "album", and "track".',
+		});
+	}
+
+	const params = new URLSearchParams({
+		q,
+		type,
+		limit: "10",
+	});
+
+	try {
+		const accessToken = await getValidAccessToken();
+
+		let response;
+		let responseText = "";
+		let data;
+
+		try {
+			response = await fetch(
+				`https://api.spotify.com/v1/search?${params.toString()}`,
+				{
+					headers: {
+						Authorization: `Bearer ${accessToken}`,
+					},
+				},
+			);
+
+			responseText = await response.text();
+
+			const trimmedBody = responseText.trim();
+			const appearsToBeJson =
+				trimmedBody.startsWith("{") || trimmedBody.startsWith("[");
+
+			if (appearsToBeJson) {
+				try {
+					data = JSON.parse(trimmedBody);
+				} catch {
+					data = undefined;
+				}
+			}
+		} catch {
+			return res.status(503).json({
+				error: "Spotify service temporarily unavailable.",
+			});
+		}
+
+		if (response.ok) {
+			const collectionKey = `${type}s`;
+			const items = data?.[collectionKey]?.items ?? [];
+			const results = items
+				.filter((item) => item && item.id)
+				.map((item) => normalizeSearchResult(item, type));
+
+			return res.status(200).json({
+				q,
+				type,
+				results,
+			});
+		}
+
+		const spotifyErrorMessage =
+			typeof data?.error?.message === "string" ? data.error.message : null;
+		const spotifyErrorReason =
+			typeof data?.error?.reason === "string" ? data.error.reason : null;
+
+		console.error("[spotify/search] upstream failure", {
+			status: response.status,
+			spotifyErrorMessage,
+			spotifyErrorReason,
+			queryLength: q.length,
+			type,
+		});
+
+		if (response.status === 401) {
+			return res.status(401).json({
+				error: "Spotify authentication required.",
+				message: "Please sign in with Spotify again to continue.",
+			});
+		}
+
+		const bodyTextLower = responseText.toLowerCase();
+		const jsonMessageLower = String(spotifyErrorMessage || "").toLowerCase();
+
+		if (
+			response.status === 403 &&
+			(bodyTextLower.includes("premium subscription") ||
+				jsonMessageLower.includes("premium subscription"))
+		) {
+			return res.status(403).json({
+				error: "spotify_premium_required",
+				message:
+					"Spotify currently requires the developer app owner to have an active Premium subscription before Web API requests are allowed.",
+			});
+		}
+
+		if (
+			response.status === 403 &&
+			(spotifyErrorReason === "INSUFFICIENT_SCOPE" ||
+				jsonMessageLower.includes("insufficient") ||
+				bodyTextLower.includes("insufficient"))
+		) {
+			return res.status(403).json({
+				error: "Additional Spotify permissions required.",
+				message:
+					"Please sign in with Spotify again so the new OAuth scope can be granted.",
+			});
+		}
+
+		if (response.status >= 500 || response.status === 429) {
+			return res.status(503).json({
+				error: "Spotify service temporarily unavailable.",
+			});
+		}
+
+		return res.status(response.status).json({
+			error: "Spotify request failed.",
+			message: spotifyErrorMessage || "Unable to complete Spotify search.",
+		});
+	} catch (error) {
+		if (error instanceof SpotifyAuthRequiredError) {
+			return res.status(401).json({
+				error: "Spotify authentication required.",
+				message: error.message,
+			});
+		}
+
+		if (error instanceof SpotifyTokenServiceError) {
+			return res.status(503).json({
+				error: "Spotify service temporarily unavailable.",
+			});
+		}
+
+		return res.status(503).json({
+			error: "Spotify service temporarily unavailable.",
+		});
+	}
 });
 
 app.listen(PORT, () => {

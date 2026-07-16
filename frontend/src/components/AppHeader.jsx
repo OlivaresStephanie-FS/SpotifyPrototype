@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import solinycLogo from "../assets/solinyc-logo-512.png";
 
 const navigationItems = [
+	{ to: "/search", label: "Search" },
 	{ to: "/profile", label: "Profile" },
 	{ to: "/followed-artists", label: "Followed Artists" },
 	{ to: "/saved-tracks", label: "Liked Songs" },

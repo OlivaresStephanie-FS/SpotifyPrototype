@@ -55,12 +55,25 @@ Users authenticate with Spotify using OAuth 2.0 to securely access their profile
 - Profile dashboard previews
 - ✅ Frontend validation completed
 
-### ⏳ Planned
+#### Final Assignment Correction
 
-- 🎧 Spotify search endpoints
+- 🎧 Spotify search endpoint (`GET /api/spotify/search`)
 - Artist search
 - Album search
 - Track search
+- 🔒 Protected `/search` route
+- Authenticated redirect to `/search` after login
+- Authenticated `/login` redirect to `/search`
+- Visible **No results** state before search and for zero matches
+- Clickable result thumbnails using Spotify Web Player links (`external_urls.spotify`)
+
+### ⏳ Planned
+
+- Favorites
+- Playlists
+- Recently Played
+- Listening insights
+- Music player integration
 
 ## 🛠️ Technology Stack
 
@@ -277,6 +290,32 @@ Additional implementation changes:
 
 The application was re-authorized with `user-follow-read` and `user-library-read` and verified against a real Spotify account. Followed Artists, Liked Songs, profile dashboard previews, navigation, authenticated API access, loading states, and error handling were validated with live user-library data.
 
+## 🔍 Spotify Search
+
+The final assignment correction adds authenticated Spotify Search while preserving the existing SOLINYC branding and portfolio library pages (Profile, Followed Artists, Liked Songs).
+
+### Backend
+
+- Authenticated endpoint: `GET /api/spotify/search?q=&type=`
+- Supported types: `artist`, `album`, `track`
+- Reuses the existing Spotify token persistence and refresh service
+- Spotify access and refresh tokens remain server-side only
+- Results are normalized to include `id`, `name`, `type`, `image`, `subtitle`, and `external_urls.spotify`
+
+### Frontend
+
+- Protected route: `/search`
+- Search input, type selector, search button, loading state, error state, and results list
+- Search navigation item added to the existing header
+- Visible **No results** message before any search and when Spotify returns zero matches
+- Every result thumbnail links to Spotify Web Player via `external_urls.spotify` (`target="_blank"`, `rel="noopener noreferrer"`)
+
+### Authentication redirects
+
+- Successful OAuth callback redirects to `/search`
+- Authenticated visits to `/login` redirect to `/search`
+- Existing Spotify token persistence is unchanged (no application JWT)
+
 ## 📌 Agile Workflow
 
 Development is managed using:
@@ -290,7 +329,6 @@ Each weekly assignment is developed in its own feature branch before being merge
 
 ## 🚀 Next Steps
 
-- 🎧 Spotify search
 - Favorites
 - Playlists
 - Recently Played
