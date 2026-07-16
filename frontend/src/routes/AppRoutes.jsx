@@ -6,6 +6,7 @@ import LoginPage from "../pages/LoginPage";
 import ProfilePage from "../pages/ProfilePage";
 import FollowedArtistsPage from "../pages/FollowedArtistsPage";
 import SavedTracksPage from "../pages/SavedTracksPage";
+import SearchPage from "../pages/SearchPage";
 
 function AppRoutes() { // Component that defines the application's routes and their corresponding components
 	return (
@@ -15,6 +16,7 @@ function AppRoutes() { // Component that defines the application's routes and th
 				<Route path="/login" element={<LoginPage />} />
 
 				<Route element={<ProtectedRoute />}>
+					<Route path="/search" element={<SearchPage />} />
 					<Route path="/profile" element={<ProfilePage />} />
 					<Route
 						path="/followed-artists"
