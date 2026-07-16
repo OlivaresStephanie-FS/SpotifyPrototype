@@ -3,8 +3,9 @@
 	top: 0;
 	z-index: 10;
 	border-bottom: 1px solid var(--color-border);
-	background-color: rgba(15, 17, 21, 0.96);
+	background-color: var(--color-header);
 	backdrop-filter: blur(0.75rem);
+	box-shadow: var(--shadow-header);
 }
 
 .app-header__inner {
@@ -38,7 +39,7 @@
 	height: 2rem;
 	border-radius: 50%;
 	background-color: var(--color-accent);
-	color: var(--color-background);
+	color: var(--color-accent-contrast);
 	font-size: var(--font-size-lg);
 }
 
@@ -65,17 +66,17 @@
 
 .app-nav__link--active {
 	background-color: var(--color-accent);
-	color: var(--color-background);
+	color: var(--color-accent-contrast);
 }
 
 .app-nav__link--active:hover {
 	background-color: var(--color-accent-hover);
-	color: var(--color-background);
+	color: var(--color-accent-contrast);
 }
 
 .app-footer {
 	border-top: 1px solid var(--color-border);
-	background-color: var(--color-surface);
+	background-color: var(--color-surface-soft);
 }
 
 .app-footer__inner {

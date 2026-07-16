@@ -10,7 +10,7 @@
 
 .home-page__eyebrow {
 	margin-bottom: var(--space-sm);
-	color: var(--color-accent);
+	color: var(--color-secondary-strong);
 	font-size: var(--font-size-sm);
 	font-weight: 700;
 	letter-spacing: 0.08em;
@@ -41,16 +41,17 @@
 	justify-content: center;
 	min-height: 2.75rem;
 	padding: var(--space-sm) var(--space-lg);
-	border: 1px solid var(--color-border);
+	border: 1px solid var(--color-accent);
 	border-radius: 999px;
-	background-color: var(--color-surface);
-	color: var(--color-text);
+	background-color: var(--color-accent);
+	color: var(--color-accent-contrast);
 	font-weight: 600;
 }
 
 .home-page__link:hover {
-	border-color: var(--color-accent);
-	color: var(--color-accent);
+	border-color: var(--color-accent-hover);
+	background-color: var(--color-accent-hover);
+	color: var(--color-accent-contrast);
 	text-decoration: none;
 }
 

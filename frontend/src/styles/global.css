@@ -12,14 +12,22 @@
 
 :root {
 	/* Colors */
-	--color-background: #0f1115;
-	--color-surface: #1a1d24;
-	--color-text: #f3f4f6;
-	--color-text-muted: #9ca3af;
-	--color-border: #2a2f3a;
-	--color-accent: #1db954;
-	--color-accent-hover: #1ed760;
-	--color-danger: #fca5a5;
+	--color-background: #ad96b2;
+	--color-surface: #ffffff;
+	--color-surface-soft: #f7f3f7;
+	--color-text: #1f1224;
+	--color-text-muted: #3f2c43;
+	--color-border: #dfd1df;
+	--color-accent: #740068;
+	--color-accent-hover: #5b0052;
+	--color-accent-contrast: #ffffff;
+	--color-secondary: #006b83;
+	--color-secondary-strong: #003844;
+	--color-danger: #8f1838;
+	--color-danger-surface: #fae8ed;
+	--color-danger-border: #d7a9b6;
+	--color-spotify: #116c43;
+	--color-header: rgba(255, 255, 255, 0.94);
 
 	/* Typography */
 	--font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -42,7 +50,8 @@
 	--container-max-width: 72rem;
 	--radius-md: 0.5rem;
 	--radius-lg: 0.75rem;
-	--shadow-card: 0 1rem 2.5rem rgba(0, 0, 0, 0.18);
+	--shadow-card: 0 1rem 2.5rem rgba(55, 24, 56, 0.18);
+	--shadow-header: 0 0.25rem 1rem rgba(55, 24, 56, 0.08);
 }
 
 html {
@@ -171,13 +180,13 @@ a {
 	width: 1.75rem;
 	height: 1.75rem;
 	border-radius: 50%;
-	background-color: rgba(252, 165, 165, 0.12);
+	background-color: var(--color-danger-surface);
 	color: var(--color-danger);
 	font-weight: 700;
 }
 
 .auth-status--error {
-	border-color: rgba(252, 165, 165, 0.3);
+	border-color: var(--color-danger-border);
 }
 
 .auth-status__button {
@@ -186,14 +195,15 @@ a {
 	padding: var(--space-sm) var(--space-md);
 	border: 1px solid var(--color-border);
 	border-radius: var(--radius-md);
-	background-color: transparent;
-	color: var(--color-text);
+	background-color: var(--color-accent);
+	color: var(--color-accent-contrast);
 	cursor: pointer;
 }
 
 .auth-status__button:hover {
-	border-color: var(--color-accent);
-	color: var(--color-accent);
+	border-color: var(--color-accent-hover);
+	background-color: var(--color-accent-hover);
+	color: var(--color-accent-contrast);
 }
 
 @keyframes auth-status-spin {
