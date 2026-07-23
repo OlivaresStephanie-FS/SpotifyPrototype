@@ -211,7 +211,10 @@ SPOTIFY_REDIRECT_URI=
 MONGODB_URI=
 PORT=3000
 NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 ```
+
+`FRONTEND_URL` is the frontend origin used for post-OAuth redirects and for CORS. In local Docker development the Vite proxy remains the primary path for API calls; in production set this to the public frontend origin (for example `https://music.soli.nyc`) so the Netlify frontend can call the Render backend.
 
 ## 🔐 Authentication Flow
 
