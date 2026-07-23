@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import connectDatabase from "./config/database.js";
 import SpotifyToken from "./models/SpotifyToken.js";
@@ -16,11 +17,26 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-function frontendRedirect(path) { // Function to construct the frontend redirect URL for the given path
-	const base = process.env.FRONTEND_URL || "http://localhost:5173";
-
-	return `${base.replace(/\/$/, "")}${path}`;
+function frontendOrigin() {
+	return (process.env.FRONTEND_URL || "http://localhost:5173").replace(
+		/\/$/,
+		"",
+	);
 }
+
+function frontendRedirect(path) { // Function to construct the frontend redirect URL for the given path
+	return `${frontendOrigin()}${path}`;
+}
+
+// Allow the configured frontend origin (FRONTEND_URL) for production cross-origin
+// API calls (e.g. Netlify → Render). Local Docker continues to use the Vite proxy.
+app.use(
+	cors({
+		origin: frontendOrigin(),
+		methods: ["GET", "POST", "OPTIONS"],
+		allowedHeaders: ["Content-Type"],
+	}),
+);
 
 app.use(express.json());
 
