@@ -216,6 +216,8 @@ FRONTEND_URL=http://localhost:5173
 
 `FRONTEND_URL` is the frontend origin used for post-OAuth redirects and for CORS. In local Docker development the Vite proxy remains the primary path for API calls; in production set this to the public frontend origin (for example `https://music.soli.nyc`) so the Netlify frontend can call the Render backend.
 
+`MONGODB_URI` is the only database configuration the backend reads. Local Docker Compose should continue using the `spotify-mongo` container URI (see `backend/.env.example`). For production, set `MONGODB_URI` to your MongoDB Atlas connection string (typically a `mongodb+srv://...` URI). Do not commit Atlas credentials to the repository.
+
 ## 🔐 Authentication Flow
 
 1. User navigates to `/login`.
