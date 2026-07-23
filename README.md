@@ -212,23 +212,26 @@ MONGODB_URI=
 PORT=3000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
+SESSION_SECRET=
 ```
 
 `FRONTEND_URL` is the frontend origin used for post-OAuth redirects and for CORS. In local Docker development the Vite proxy remains the primary path for API calls; in production set this to the public frontend origin (for example `https://music.soli.nyc`) so the Netlify frontend can call the Render backend.
 
 `MONGODB_URI` is the only database configuration the backend reads. Local Docker Compose should continue using the `spotify-mongo` container URI (see `backend/.env.example`). For production, set `MONGODB_URI` to your MongoDB Atlas connection string (typically a `mongodb+srv://...` URI). Do not commit Atlas credentials to the repository.
 
+`SESSION_SECRET` signs the HTTP-only session cookie that binds each browser to its own Spotify account. Production must use a long, random value configured in Render. Do not commit a real secret.
+
 ## 🔐 Authentication Flow
 
-1. User navigates to `/login`.
-2. User is redirected to Spotify's authorization page.
+1. User navigates to `/login` and chooses **Sign in with Spotify**.
+2. The backend creates a browser session, stores OAuth `state` in that session, and redirects to Spotify.
 3. User authorizes the application.
-4. Spotify redirects the user to `/callback`.
-5. The backend exchanges the authorization code for an access token and refresh token.
-6. Tokens are stored in MongoDB.
-7. Authentication status can be checked using `/auth/status`.
-8. Authenticated users can log out with **Log Out**, which calls `POST /auth/logout`, deletes the stored Spotify token record, clears frontend auth state, and redirects to `/login`.
-9. MongoDB Docker volume persistence keeps authentication available across ordinary `docker compose down` / `docker compose up` and container restarts until the user explicitly logs out.
+4. Spotify redirects the user to `/callback` with an authorization code and `state`.
+5. The backend validates `state`, exchanges the code for tokens, loads the Spotify user profile, and stores tokens in a user-specific MongoDB record keyed by Spotify user ID.
+6. The Spotify user ID is saved on the current browser session (HTTP-only cookie). Tokens are never sent to the frontend.
+7. Authentication status can be checked using `/auth/status` for the current session only.
+8. Authenticated users can log out with **Log Out**, which destroys only that browser session, clears its cookie, and deletes only that user’s stored Spotify token record.
+9. MongoDB Docker volume persistence keeps data available across ordinary `docker compose down` / `docker compose up` and container restarts until the user explicitly logs out.
 
 ## 📡 Current API Endpoints
 
@@ -373,13 +376,13 @@ The final assignment correction adds authenticated Spotify Search while preservi
 
 Authenticated users can end their session with the **Log Out** control in the primary navigation.
 
-- Backend: `POST /auth/logout` deletes the stored Spotify access and refresh token record from MongoDB
-- Logout is idempotent: the endpoint succeeds even when no authentication record exists
+- Backend: `POST /auth/logout` destroys the current browser session and deletes only that user’s stored Spotify token record
+- Logout is scoped to the current session; other signed-in browsers remain authenticated
 - Token values are never returned to the frontend
 - After a successful logout, the frontend clears auth state and redirects to `/login`
 - Protected routes (`/search`, `/profile`, `/followed-artists`, `/saved-tracks`) require authentication again
-- Ordinary Docker restarts (`docker compose down` / `docker compose up`) do **not** log the user out, because MongoDB data is persisted in the `spotify-mongo-data` volume
-- Only an explicit logout removes the stored authentication record
+- Ordinary Docker restarts (`docker compose down` / `docker compose up`) do **not** log the user out while a valid session cookie and token record remain
+- Explicit logout removes that browser’s session and that user’s stored authentication record
 
 ## 📌 Agile Workflow
 

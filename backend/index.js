@@ -1,21 +1,34 @@
+import crypto from "crypto";
 import express from "express";
 import cors from "cors";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
 import connectDatabase from "./config/database.js";
-import SpotifyToken from "./models/SpotifyToken.js";
 import {
 	getValidAccessToken,
-	clearStoredSpotifyTokens,
+	clearStoredSpotifyTokenForUser,
+	upsertSpotifyTokenForUser,
 	SpotifyAuthRequiredError,
 	SpotifyTokenServiceError,
 } from "./services/spotifyToken.js";
 
-dotenv.config(); // Load environment variables from .env file
-connectDatabase(); // Connect to MongoDB database
+dotenv.config();
+connectDatabase();
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === "production";
+
+if (!process.env.SESSION_SECRET) {
+	console.error("SESSION_SECRET is required.");
+	process.exit(1);
+}
+
+if (!process.env.MONGODB_URI) {
+	console.error("MONGODB_URI is required.");
+	process.exit(1);
+}
 
 function frontendOrigin() {
 	return (process.env.FRONTEND_URL || "http://localhost:5173").replace(
@@ -24,33 +37,71 @@ function frontendOrigin() {
 	);
 }
 
-function frontendRedirect(path) { // Function to construct the frontend redirect URL for the given path
+function frontendRedirect(path) {
 	return `${frontendOrigin()}${path}`;
 }
 
-// Allow the configured frontend origin (FRONTEND_URL) for production cross-origin
-// API calls (e.g. Netlify → Render). Local Docker continues to use the Vite proxy.
+function getSessionSpotifyUserId(req) {
+	return typeof req.session?.spotifyUserId === "string"
+		? req.session.spotifyUserId
+		: null;
+}
+
+async function getValidAccessTokenForRequest(req) {
+	const spotifyUserId = getSessionSpotifyUserId(req);
+
+	if (!spotifyUserId) {
+		throw new SpotifyAuthRequiredError("No authenticated session.");
+	}
+
+	return getValidAccessToken(spotifyUserId);
+}
+
+// Render (and similar hosts) terminate TLS upstream; required for secure cookies.
+app.set("trust proxy", 1);
+
 app.use(
 	cors({
 		origin: frontendOrigin(),
 		methods: ["GET", "POST", "OPTIONS"],
 		allowedHeaders: ["Content-Type"],
+		credentials: true,
 	}),
 );
 
 app.use(express.json());
+
+const sessionCookie = {
+	httpOnly: true,
+	secure: isProduction,
+	sameSite: isProduction ? "none" : "lax",
+	maxAge: 1000 * 60 * 60 * 24 * 7,
+};
+
+app.use(
+	session({
+		name: "spotify.sid",
+		secret: process.env.SESSION_SECRET,
+		resave: false,
+		saveUninitialized: false,
+		store: MongoStore.create({
+			mongoUrl: process.env.MONGODB_URI,
+		}),
+		cookie: sessionCookie,
+	}),
+);
 
 app.get("/", (req, res) => {
 	res.json({
 		message: "Spotify Prototype API is running",
 		environment: process.env.NODE_ENV || "development",
 	});
-}); // Define a route for the root URL that responds with a JSON message indicating that the Spotify Prototype API is running, along with the current environment (development or production)
+});
 
 const SPOTIFY_SCOPES =
 	"user-read-private user-read-email user-follow-read user-library-read";
 
-function buildSpotifyAuthorizeUrl({ showDialog = false } = {}) {
+function buildSpotifyAuthorizeUrl({ showDialog = false, state } = {}) {
 	const authUrl = new URL("https://accounts.spotify.com/authorize");
 
 	authUrl.searchParams.append("response_type", "code");
@@ -60,6 +111,7 @@ function buildSpotifyAuthorizeUrl({ showDialog = false } = {}) {
 		"redirect_uri",
 		process.env.SPOTIFY_REDIRECT_URI,
 	);
+	authUrl.searchParams.append("state", state);
 
 	if (showDialog) {
 		authUrl.searchParams.append("show_dialog", "true");
@@ -68,22 +120,34 @@ function buildSpotifyAuthorizeUrl({ showDialog = false } = {}) {
 	return authUrl.toString();
 }
 
-app.get("/login", (req, res) => { // Route to initiate the Spotify authorization flow by redirecting the user to the Spotify authorization URL
-	res.redirect(buildSpotifyAuthorizeUrl());
+function beginSpotifyAuthorization(req, res, { showDialog = false } = {}) {
+	const state = crypto.randomBytes(16).toString("hex");
+	req.session.oauthState = state;
+
+	req.session.save((error) => {
+		if (error) {
+			return res.redirect(frontendRedirect("/login?error=server_error"));
+		}
+
+		return res.redirect(buildSpotifyAuthorizeUrl({ showDialog, state }));
+	});
+}
+
+app.get("/login", (req, res) => {
+	beginSpotifyAuthorization(req, res);
 });
 
-app.get("/reauthorize", (req, res) => { // Route to initiate the Spotify reauthorization flow by redirecting the user to the Spotify authorization URL with the show_dialog parameter set to true
-	res.redirect(buildSpotifyAuthorizeUrl({ showDialog: true }));
+app.get("/reauthorize", (req, res) => {
+	beginSpotifyAuthorization(req, res, { showDialog: true });
 });
 
-app.get("/callback", async (req, res) => { // Route to handle the callback from Spotify after the user authorizes the application, exchanging the authorization code for an access token and refresh token, and storing them in the database
+app.get("/callback", async (req, res) => {
 	const code = req.query.code;
+	const returnedState = req.query.state;
 	const spotifyError = req.query.error;
 
 	if (spotifyError === "access_denied") {
-		return res.redirect(
-			frontendRedirect("/login?error=access_denied"),
-		);
+		return res.redirect(frontendRedirect("/login?error=access_denied"));
 	}
 
 	if (spotifyError) {
@@ -96,15 +160,27 @@ app.get("/callback", async (req, res) => { // Route to handle the callback from 
 		return res.redirect(frontendRedirect("/login?error=missing_code"));
 	}
 
+	if (
+		!returnedState ||
+		typeof returnedState !== "string" ||
+		returnedState !== req.session?.oauthState
+	) {
+		return res.redirect(
+			frontendRedirect("/login?error=authorization_failed"),
+		);
+	}
+
+	delete req.session.oauthState;
+
 	const credentials = Buffer.from(
 		`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`,
-	).toString("base64"); // Encoding the client ID and client secret in base64 for the Authorization header
+	).toString("base64");
 
 	const body = new URLSearchParams({
 		grant_type: "authorization_code",
 		code,
 		redirect_uri: process.env.SPOTIFY_REDIRECT_URI,
-	}); // Creating the request body for the token exchange request, including the grant type, authorization code, and redirect URI
+	});
 
 	try {
 		const response = await fetch("https://accounts.spotify.com/api/token", {
@@ -114,7 +190,7 @@ app.get("/callback", async (req, res) => { // Route to handle the callback from 
 				"Content-Type": "application/x-www-form-urlencoded",
 			},
 			body,
-		}); // Sending a POST request to the Spotify token endpoint to exchange the authorization code for an access token and refresh token
+		});
 
 		const data = await response.json();
 
@@ -122,26 +198,49 @@ app.get("/callback", async (req, res) => { // Route to handle the callback from 
 			return res.redirect(
 				frontendRedirect("/login?error=exchange_failed"),
 			);
-		} // If the response is not OK, redirect to the frontend login page with an error
+		}
+
+		const profileResponse = await fetch("https://api.spotify.com/v1/me", {
+			headers: {
+				Authorization: `Bearer ${data.access_token}`,
+			},
+		});
+
+		const profile = await profileResponse.json();
+
+		if (!profileResponse.ok || !profile?.id) {
+			return res.redirect(frontendRedirect("/login?error=server_error"));
+		}
 
 		const expiresAt = new Date(Date.now() + data.expires_in * 1000);
 
-		await SpotifyToken.create({
+		await upsertSpotifyTokenForUser({
+			spotifyUserId: profile.id,
 			accessToken: data.access_token,
 			refreshToken: data.refresh_token,
 			tokenType: data.token_type,
 			expiresAt,
 		});
 
-		return res.redirect(frontendRedirect("/"));
-	} catch (error) {
+		req.session.spotifyUserId = profile.id;
+
+		req.session.save((error) => {
+			if (error) {
+				return res.redirect(
+					frontendRedirect("/login?error=server_error"),
+				);
+			}
+
+			return res.redirect(frontendRedirect("/"));
+		});
+	} catch {
 		return res.redirect(frontendRedirect("/login?error=server_error"));
 	}
-}); // Catch any server errors during the token exchange process and redirect to the frontend login page
+});
 
 app.get("/auth/status", async (req, res) => {
 	try {
-		await getValidAccessToken();
+		await getValidAccessTokenForRequest(req);
 
 		return res.status(200).json({
 			authenticated: true,
@@ -167,12 +266,30 @@ app.get("/auth/status", async (req, res) => {
 });
 
 app.post("/auth/logout", async (req, res) => {
-	try {
-		await clearStoredSpotifyTokens();
+	const spotifyUserId = getSessionSpotifyUserId(req);
 
-		return res.status(200).json({
-			authenticated: false,
-			message: "Logged out successfully.",
+	try {
+		if (spotifyUserId) {
+			await clearStoredSpotifyTokenForUser(spotifyUserId);
+		}
+
+		req.session.destroy((error) => {
+			res.clearCookie("spotify.sid", {
+				httpOnly: sessionCookie.httpOnly,
+				secure: sessionCookie.secure,
+				sameSite: sessionCookie.sameSite,
+			});
+
+			if (error) {
+				return res.status(503).json({
+					error: "Logout temporarily unavailable.",
+				});
+			}
+
+			return res.status(200).json({
+				authenticated: false,
+				message: "Logged out successfully.",
+			});
 		});
 	} catch (error) {
 		if (error instanceof SpotifyTokenServiceError) {
@@ -187,9 +304,9 @@ app.post("/auth/logout", async (req, res) => {
 	}
 });
 
-async function fetchSpotifyApi(spotifyPath, res) {
+async function fetchSpotifyApi(spotifyPath, req, res) {
 	try {
-		const accessToken = await getValidAccessToken();
+		const accessToken = await getValidAccessTokenForRequest(req);
 
 		let response;
 		let responseText = "";
@@ -292,15 +409,15 @@ async function fetchSpotifyApi(spotifyPath, res) {
 }
 
 app.get("/api/spotify/profile", async (req, res) => {
-	return fetchSpotifyApi("/me", res);
+	return fetchSpotifyApi("/me", req, res);
 });
 
 app.get("/api/spotify/followed-artists", async (req, res) => {
-	return fetchSpotifyApi("/me/following?type=artist&limit=20", res);
+	return fetchSpotifyApi("/me/following?type=artist&limit=20", req, res);
 });
 
 app.get("/api/spotify/saved-tracks", async (req, res) => {
-	return fetchSpotifyApi("/me/tracks?limit=20", res);
+	return fetchSpotifyApi("/me/tracks?limit=20", req, res);
 });
 
 const SEARCH_TYPES = new Set(["artist", "album", "track"]);
@@ -374,7 +491,7 @@ app.get("/api/spotify/search", async (req, res) => {
 	});
 
 	try {
-		const accessToken = await getValidAccessToken();
+		const accessToken = await getValidAccessTokenForRequest(req);
 
 		let response;
 		let responseText = "";
@@ -503,4 +620,4 @@ app.get("/api/spotify/search", async (req, res) => {
 
 app.listen(PORT, () => {
 	console.log(`Spotify Prototype API running on port ${PORT}`);
-}); // Start the Express server and listen on the specified port, logging a message to indicate that the server is running
+});

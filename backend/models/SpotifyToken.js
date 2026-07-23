@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const spotifyTokenSchema = new mongoose.Schema(
 	{
+		spotifyUserId: {
+			type: String,
+			required: true,
+			unique: true,
+			index: true,
+		},
 		accessToken: {
 			type: String,
 			required: true,
@@ -22,7 +28,7 @@ const spotifyTokenSchema = new mongoose.Schema(
 	{
 		timestamps: true,
 	},
-); // Defining a Mongoose schema for the SpotifyToken model, which includes fields for access token, refresh token, token type, and expiration date, along with automatic timestamping for creation and update times
+);
 
 const SpotifyToken = mongoose.model("SpotifyToken", spotifyTokenSchema);
 
