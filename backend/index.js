@@ -117,7 +117,7 @@ app.get("/callback", async (req, res) => { // Route to handle the callback from 
 			expiresAt,
 		});
 
-		return res.redirect(frontendRedirect("/search"));
+		return res.redirect(frontendRedirect("/"));
 	} catch (error) {
 		return res.redirect(frontendRedirect("/login?error=server_error"));
 	}
