@@ -1,8 +1,7 @@
-function getBackendReconnectUrl() {
-	const backendOrigin =
-		import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:3000";
+import { getBackendOrigin } from "../services/backendOrigin";
 
-	return `${backendOrigin.replace(/\/$/, "")}/reauthorize`;
+function getBackendReconnectUrl() {
+	return `${getBackendOrigin()}/reauthorize`;
 }
 
 function requiresSpotifyReconnect(message) {
