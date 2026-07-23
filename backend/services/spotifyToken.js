@@ -17,10 +17,14 @@ export class SpotifyTokenServiceError extends Error {
 }
 
 /**
- * Returns a usable Spotify access token, refreshing and persisting when expired.
+ * Returns a usable Spotify access token for one Spotify user, refreshing when expired.
  */
-export async function getValidAccessToken() {
-	const token = await SpotifyToken.findOne().sort({ createdAt: -1 });
+export async function getValidAccessToken(spotifyUserId) {
+	if (!spotifyUserId || typeof spotifyUserId !== "string") {
+		throw new SpotifyAuthRequiredError("No authenticated session.");
+	}
+
+	const token = await SpotifyToken.findOne({ spotifyUserId });
 
 	if (!token) {
 		throw new SpotifyAuthRequiredError("No Spotify token found.");
@@ -106,15 +110,63 @@ export async function getValidAccessToken() {
 }
 
 /**
- * Removes all stored Spotify authentication records.
- * Idempotent: succeeds even when no tokens exist.
+ * Removes the stored Spotify token record for one user.
+ * Idempotent when the user has no token record.
  */
-export async function clearStoredSpotifyTokens() {
+export async function clearStoredSpotifyTokenForUser(spotifyUserId) {
+	if (!spotifyUserId || typeof spotifyUserId !== "string") {
+		return;
+	}
+
 	try {
-		await SpotifyToken.deleteMany({});
+		await SpotifyToken.deleteOne({ spotifyUserId });
 	} catch {
 		throw new SpotifyTokenServiceError(
 			"Failed to clear stored Spotify authentication.",
+		);
+	}
+}
+
+/**
+ * Upserts Spotify tokens for a specific Spotify user ID.
+ */
+export async function upsertSpotifyTokenForUser({
+	spotifyUserId,
+	accessToken,
+	refreshToken,
+	tokenType,
+	expiresAt,
+}) {
+	if (!spotifyUserId || !accessToken || !expiresAt) {
+		throw new SpotifyTokenServiceError(
+			"Missing required Spotify token fields.",
+		);
+	}
+
+	const existing = await SpotifyToken.findOne({ spotifyUserId });
+	const nextRefreshToken = refreshToken || existing?.refreshToken;
+
+	if (!nextRefreshToken) {
+		throw new SpotifyTokenServiceError(
+			"Spotify token response was missing a refresh token.",
+		);
+	}
+
+	try {
+		return await SpotifyToken.findOneAndUpdate(
+			{ spotifyUserId },
+			{
+				spotifyUserId,
+				accessToken,
+				refreshToken: nextRefreshToken,
+				tokenType: tokenType || "Bearer",
+				expiresAt,
+			},
+			{ upsert: true, new: true, setDefaultsOnInsert: true },
+		);
+	} catch {
+		throw new SpotifyTokenServiceError(
+			"Failed to save Spotify authentication.",
 		);
 	}
 }
