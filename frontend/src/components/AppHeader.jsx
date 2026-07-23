@@ -1,4 +1,5 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import solinycLogo from "../assets/solinyc-logo-512.png";
 
@@ -10,9 +11,26 @@ const navigationItems = [
 ];
 
 function AppHeader() {
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated, logout } = useAuth();
 	const location = useLocation();
+	const navigate = useNavigate();
+	const [isLoggingOut, setIsLoggingOut] = useState(false);
+	const [logoutError, setLogoutError] = useState(null);
 	const showNavigation = isAuthenticated && location.pathname !== "/login";
+
+	const handleLogout = async () => {
+		setLogoutError(null);
+		setIsLoggingOut(true);
+
+		try {
+			await logout();
+			navigate("/login", { replace: true });
+		} catch {
+			setLogoutError("Unable to log out. Please try again.");
+		} finally {
+			setIsLoggingOut(false);
+		}
+	};
 
 	return (
 		<header className="app-header">
@@ -40,9 +58,24 @@ function AppHeader() {
 								{label}
 							</NavLink>
 						))}
+						<button
+							type="button"
+							className="app-nav__link app-nav__link--action"
+							onClick={handleLogout}
+							disabled={isLoggingOut}
+							aria-busy={isLoggingOut}
+						>
+							{isLoggingOut ? "Logging out…" : "Log Out"}
+						</button>
 					</nav>
 				) : null}
 			</div>
+
+			{logoutError ? (
+				<p className="app-header__error container" role="alert">
+					{logoutError}
+				</p>
+			) : null}
 		</header>
 	);
 }

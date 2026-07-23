@@ -7,7 +7,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { getAuthenticationStatus } from "../services/authService";
+import { getAuthenticationStatus, logoutAuthentication } from "../services/authService";
 
 const AuthContext = createContext(null);
 
@@ -57,6 +57,17 @@ export function AuthProvider({ children }) { // Provider component that manages 
 		}
 	}, []);
 
+	const logout = useCallback(async () => {
+		await logoutAuthentication();
+
+		if (!isMountedRef.current) {
+			return;
+		}
+
+		setIsAuthenticated(false);
+		setError(null);
+	}, []);
+
 	useEffect(() => {
 		refreshAuthentication();
 	}, [refreshAuthentication]);
@@ -67,8 +78,9 @@ export function AuthProvider({ children }) { // Provider component that manages 
 			isLoading,
 			error,
 			refreshAuthentication,
+			logout,
 		}),
-		[isAuthenticated, isLoading, error, refreshAuthentication],
+		[isAuthenticated, isLoading, error, refreshAuthentication, logout],
 	);
 
 	return (

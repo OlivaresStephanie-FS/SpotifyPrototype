@@ -4,7 +4,7 @@ A full-stack music search application built with React, Express, MongoDB, Docker
 
 This project is being developed as part of Full Sail University's Advanced Server Side Languages course using an Agile workflow throughout the duration of the project.
 
-Users authenticate with Spotify using OAuth 2.0 to securely access their profile, followed artists, and Liked Songs (saved tracks) through the Spotify Web API.
+Users sign in with Spotify using OAuth 2.0 to securely access Spotify Search, their profile, followed artists, and Liked Songs (saved tracks). Spotify access and refresh tokens are stored in MongoDB so authentication persists across normal Docker restarts, and users can Log Out to remove the stored authentication record.
 
 ## ✨ Features
 
@@ -66,6 +66,14 @@ Users authenticate with Spotify using OAuth 2.0 to securely access their profile
 - Authenticated `/login` redirect to `/search`
 - Visible **No results** state before search and for zero matches
 - Clickable result thumbnails using Spotify Web Player links (`external_urls.spotify`)
+
+#### Session Controls
+
+- Logout endpoint (`POST /auth/logout`)
+- Authenticated navigation **Log Out** control
+- Logout removes the stored Spotify token record from MongoDB
+- Redirect to `/login` after logout
+- Authentication remains persistent across ordinary Docker restarts
 
 ### ⏳ Planned
 
@@ -180,6 +188,8 @@ NODE_ENV=development
 5. The backend exchanges the authorization code for an access token and refresh token.
 6. Tokens are stored in MongoDB.
 7. Authentication status can be checked using `/auth/status`.
+8. Authenticated users can log out with **Log Out**, which calls `POST /auth/logout`, deletes the stored Spotify token record, clears frontend auth state, and redirects to `/login`.
+9. MongoDB Docker volume persistence keeps authentication available across ordinary `docker compose down` / `docker compose up` and container restarts until the user explicitly logs out.
 
 ## 📡 Current API Endpoints
 
@@ -189,9 +199,11 @@ NODE_ENV=development
 |  GET   | `/login`                    | Redirect user to Spotify authorization |
 |  GET   | `/callback`                 | Spotify OAuth callback                 |
 |  GET   | `/auth/status`              | Returns current authentication status  |
+|  POST  | `/auth/logout`              | Clears stored Spotify tokens (idempotent logout) |
 |  GET   | `/api/spotify/profile`          | Current Spotify user profile           |
 |  GET   | `/api/spotify/followed-artists` | Artists the current user follows       |
 |  GET   | `/api/spotify/saved-tracks`     | Tracks saved in the user's library     |
+|  GET   | `/api/spotify/search`           | Search artists, albums, or tracks      |
 
 ## 🎧 Week 3 — Personalized Spotify Dashboard API
 
@@ -210,15 +222,17 @@ Key features implemented:
 
 ## 🎵 Week 4 — React Frontend & Spotify Dashboard
 
-Week 4 delivers a React and Vite frontend for the personalized Spotify dashboard. Protected routing connects the existing Spotify authentication flow to responsive Profile, Followed Artists, and Liked Songs pages within a shared application layout.
+Week 4 delivers a React and Vite frontend for the personalized Spotify dashboard. Protected routing connects the existing Spotify authentication flow to responsive Search, Profile, Followed Artists, and Liked Songs pages within a shared application layout.
 
 Key features implemented:
 
 - React + Vite frontend application
 - 🔒 Protected routing for authenticated dashboard pages
+- 🎧 Spotify Search page
 - 🎧 Spotify Profile page
 - 🎧 Followed Artists page
 - 🎧 Liked Songs page backed by Spotify's Saved Tracks endpoint
+- Sign in with Spotify and authenticated navigation **Log Out**
 - Profile dashboard previews for followed artists and liked songs
 - SOLINYC-inspired responsive theme
 - Shared loading, error, and empty states
@@ -315,6 +329,18 @@ The final assignment correction adds authenticated Spotify Search while preservi
 - Successful OAuth callback redirects to `/search`
 - Authenticated visits to `/login` redirect to `/search`
 - Existing Spotify token persistence is unchanged (no application JWT)
+
+## 🔒 Session Controls
+
+Authenticated users can end their session with the **Log Out** control in the primary navigation.
+
+- Backend: `POST /auth/logout` deletes the stored Spotify access and refresh token record from MongoDB
+- Logout is idempotent: the endpoint succeeds even when no authentication record exists
+- Token values are never returned to the frontend
+- After a successful logout, the frontend clears auth state and redirects to `/login`
+- Protected routes (`/search`, `/profile`, `/followed-artists`, `/saved-tracks`) require authentication again
+- Ordinary Docker restarts (`docker compose down` / `docker compose up`) do **not** log the user out, because MongoDB data is persisted in the `spotify-mongo-data` volume
+- Only an explicit logout removes the stored authentication record
 
 ## 📌 Agile Workflow
 

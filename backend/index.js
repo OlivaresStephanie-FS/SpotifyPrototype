@@ -4,6 +4,7 @@ import connectDatabase from "./config/database.js";
 import SpotifyToken from "./models/SpotifyToken.js";
 import {
 	getValidAccessToken,
+	clearStoredSpotifyTokens,
 	SpotifyAuthRequiredError,
 	SpotifyTokenServiceError,
 } from "./services/spotifyToken.js";
@@ -145,6 +146,27 @@ app.get("/auth/status", async (req, res) => {
 
 		return res.status(503).json({
 			error: "Authentication status temporarily unavailable.",
+		});
+	}
+});
+
+app.post("/auth/logout", async (req, res) => {
+	try {
+		await clearStoredSpotifyTokens();
+
+		return res.status(200).json({
+			authenticated: false,
+			message: "Logged out successfully.",
+		});
+	} catch (error) {
+		if (error instanceof SpotifyTokenServiceError) {
+			return res.status(503).json({
+				error: "Logout temporarily unavailable.",
+			});
+		}
+
+		return res.status(503).json({
+			error: "Logout temporarily unavailable.",
 		});
 	}
 });
