@@ -86,8 +86,8 @@ function LoginPage() { // Component that handles the login page and Spotify auth
 					Connect your Spotify account
 				</h1>
 				<p className="login-card__description">
-					Sign in with Spotify to view your profile, top artists, and top
-					tracks in one personalized dashboard.
+					Sign in with Spotify to access your profile, followed artists, liked
+					songs, and Spotify search in one personalized dashboard.
 				</p>
 
 				{displayError ? (
@@ -103,13 +103,15 @@ function LoginPage() { // Component that handles the login page and Spotify auth
 					disabled={isRedirecting}
 					aria-busy={isRedirecting}
 				>
-					{isRedirecting ? "Redirecting to Spotify…" : "Connect with Spotify"}
+					{isRedirecting ? "Redirecting to Spotify…" : "Sign in with Spotify"}
 				</button>
 
 				<p className="login-card__privacy">
-					Spotify authorization is used only to retrieve your profile, top
-					artist, and top track information. Your credentials are handled by
-					Spotify and are not stored in this application.
+					Spotify securely handles your login credentials. This application
+					never receives or stores your Spotify password. Spotify access and
+					refresh tokens are securely stored on the server to maintain your
+					authenticated session and communicate with the Spotify Web API on
+					your behalf.
 				</p>
 			</div>
 		</section>

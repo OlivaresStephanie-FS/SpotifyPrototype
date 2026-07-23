@@ -104,3 +104,17 @@ export async function getValidAccessToken() {
 
 	return token.accessToken;
 }
+
+/**
+ * Removes all stored Spotify authentication records.
+ * Idempotent: succeeds even when no tokens exist.
+ */
+export async function clearStoredSpotifyTokens() {
+	try {
+		await SpotifyToken.deleteMany({});
+	} catch {
+		throw new SpotifyTokenServiceError(
+			"Failed to clear stored Spotify authentication.",
+		);
+	}
+}

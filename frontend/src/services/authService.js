@@ -13,3 +13,16 @@ export async function getAuthenticationStatus() {
 		message: response.data?.message ?? null,
 	};
 }
+
+/**
+ * Clears the backend-stored Spotify authentication record.
+ * Tokens are never returned to the frontend.
+ */
+export async function logoutAuthentication() {
+	const response = await api.post("/auth/logout");
+
+	return {
+		authenticated: Boolean(response.data?.authenticated),
+		message: response.data?.message ?? "Logged out successfully.",
+	};
+}
