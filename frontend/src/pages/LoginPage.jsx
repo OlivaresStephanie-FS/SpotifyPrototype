@@ -2,13 +2,11 @@ import { useEffect, useState } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthLoadingState from "../components/AuthLoadingState";
+import { getBackendOrigin } from "../services/backendOrigin";
 import "../styles/login.css";
 
-function getBackendLoginUrl() { // Function to construct the backend login URL for Spotify authorization
-	const backendOrigin =
-		import.meta.env.VITE_BACKEND_ORIGIN || "http://localhost:3000";
-
-	return `${backendOrigin.replace(/\/$/, "")}/login`;
+function getBackendLoginUrl() {
+	return `${getBackendOrigin()}/login`;
 }
 
 function getCallbackErrorMessage(errorCode) { // Function to map error codes to user-friendly messages
