@@ -26,7 +26,7 @@ function HomePage() { // Component that serves as the landing page of the applic
 							Followed Artists
 						</Link>
 						<Link className="home-page__link" to="/saved-tracks">
-							Saved Tracks
+							Liked Songs
 						</Link>
 					</div>
 				) : null}

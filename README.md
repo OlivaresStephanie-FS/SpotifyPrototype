@@ -62,8 +62,8 @@ Users sign in with Spotify using OAuth 2.0 to securely access Spotify Search, th
 - Album search
 - Track search
 - 🔒 Protected `/search` route
-- Authenticated redirect to `/search` after login
-- Authenticated `/login` redirect to `/search`
+- Authenticated redirect to `/` after login
+- Authenticated `/login` redirect to `/`
 - Visible **No results** state before search and for zero matches
 - Clickable result thumbnails using Spotify Web Player links (`external_urls.spotify`)
 
@@ -326,8 +326,8 @@ The final assignment correction adds authenticated Spotify Search while preservi
 
 ### Authentication redirects
 
-- Successful OAuth callback redirects to `/search`
-- Authenticated visits to `/login` redirect to `/search`
+- Successful OAuth callback redirects to `/` (authenticated homepage)
+- Authenticated visits to `/login` redirect to `/`
 - Existing Spotify token persistence is unchanged (no application JWT)
 
 ## 🔒 Session Controls
