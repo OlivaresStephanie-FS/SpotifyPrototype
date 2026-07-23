@@ -6,6 +6,40 @@ This project is being developed as part of Full Sail University's Advanced Serve
 
 Users sign in with Spotify using OAuth 2.0 to securely access Spotify Search, their profile, followed artists, and Liked Songs (saved tracks). Spotify access and refresh tokens are stored in MongoDB so authentication persists across normal Docker restarts, and users can Log Out to remove the stored authentication record.
 
+## 📸 Application Preview
+
+### Homepage
+
+![Soli Music Search Authenticated Homepage](docs/images/homepage.png)
+
+### Sign In
+
+![Spotify Sign-In Page](docs/images/login-page.png)
+
+### Search Interface
+
+![Spotify Search Interface](docs/images/search-page.png)
+
+### Search Results
+
+![Spotify Search Results](docs/images/search-results.png)
+
+### Profile
+
+![Spotify Profile Page](docs/images/profile-page.png)
+
+### Followed Artists
+
+![Spotify Followed Artists Page](docs/images/followed-artists.png)
+
+### Liked Songs
+
+![Spotify Liked Songs Page](docs/images/liked-songs.png)
+
+### Mobile Layout
+
+![Soli Music Search Mobile Layout](docs/images/mobile-view.png)
+
 ## ✨ Features
 
 ### ✅ Completed
