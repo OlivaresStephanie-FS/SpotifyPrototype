@@ -29,7 +29,13 @@ function HomePage() { // Component that serves as the landing page of the applic
 							Liked Songs
 						</Link>
 					</div>
-				) : null}
+				) : (
+					<div className="home-page__links">
+						<Link className="home-page__link" to="/login">
+							Sign in with Spotify
+						</Link>
+					</div>
+				)}
 			</div>
 		</section>
 	);
