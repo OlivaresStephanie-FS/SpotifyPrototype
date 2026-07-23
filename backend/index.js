@@ -47,6 +47,61 @@ function getSessionSpotifyUserId(req) {
 		: null;
 }
 
+function firstQueryValue(value) {
+	if (Array.isArray(value)) {
+		return typeof value[0] === "string" ? value[0] : undefined;
+	}
+
+	return typeof value === "string" ? value : undefined;
+}
+
+function redactSession(session) {
+	if (!session || typeof session !== "object") {
+		return null;
+	}
+
+	return {
+		oauthState: session.oauthState ? "[present]" : null,
+		spotifyUserId: session.spotifyUserId || null,
+		cookie: session.cookie
+			? {
+					secure: session.cookie.secure,
+					httpOnly: session.cookie.httpOnly,
+					sameSite: session.cookie.sameSite,
+					maxAge: session.cookie.maxAge,
+				}
+			: null,
+	};
+}
+
+function logCallbackFailure(failureId, req, details = {}) {
+	const error = details.error;
+	const safeDetails = { ...details };
+	delete safeDetails.error;
+
+	// Unique, grep-friendly identifier for Render logs (no ambiguity between branches).
+	console.error(`OAUTH_CALLBACK_FAILURE_ID=${failureId}`);
+	console.error("[oauth/callback] failure", {
+		failureId,
+		requestUrl: req.originalUrl,
+		secure: req.secure,
+		protocol: req.protocol,
+		xhrForwardedProto: req.get("x-forwarded-proto") || null,
+		hasCookieHeader: Boolean(req.headers.cookie),
+		sessionID: req.sessionID || null,
+		session: redactSession(req.session),
+		query: {
+			hasCode: Boolean(firstQueryValue(req.query.code)),
+			state: firstQueryValue(req.query.state) || null,
+			error: firstQueryValue(req.query.error) || null,
+		},
+		expectedOAuthStatePresent: Boolean(req.session?.oauthState),
+		...safeDetails,
+		errorMessage: error?.message || null,
+		errorStack: error?.stack || null,
+	});
+}
+
 async function getValidAccessTokenForRequest(req) {
 	const spotifyUserId = getSessionSpotifyUserId(req);
 
@@ -57,8 +112,11 @@ async function getValidAccessTokenForRequest(req) {
 	return getValidAccessToken(spotifyUserId);
 }
 
-// Render (and similar hosts) terminate TLS upstream; required for secure cookies.
-app.set("trust proxy", 1);
+// Render terminates TLS at the proxy (and custom domains may add another hop).
+// express-session only sets Secure cookies when req.secure is true; without trust
+// proxy, Render appears as HTTP and the session cookie is never stored — so
+// /callback cannot validate oauthState.
+app.set("trust proxy", true);
 
 app.use(
 	cors({
@@ -76,6 +134,7 @@ const sessionCookie = {
 	secure: isProduction,
 	sameSite: isProduction ? "none" : "lax",
 	maxAge: 1000 * 60 * 60 * 24 * 7,
+	path: "/",
 };
 
 app.use(
@@ -84,6 +143,7 @@ app.use(
 		secret: process.env.SESSION_SECRET,
 		resave: false,
 		saveUninitialized: false,
+		proxy: true,
 		store: MongoStore.create({
 			mongoUrl: process.env.MONGODB_URI,
 		}),
@@ -126,8 +186,17 @@ function beginSpotifyAuthorization(req, res, { showDialog = false } = {}) {
 
 	req.session.save((error) => {
 		if (error) {
+			logCallbackFailure("session_save_failed_on_login", req, { error });
 			return res.redirect(frontendRedirect("/login?error=server_error"));
 		}
+
+		console.info("[oauth/login] session saved", {
+			sessionID: req.sessionID,
+			secure: req.secure,
+			protocol: req.protocol,
+			xhrForwardedProto: req.get("x-forwarded-proto") || null,
+			oauthState: "[present]",
+		});
 
 		return res.redirect(buildSpotifyAuthorizeUrl({ showDialog, state }));
 	});
@@ -142,29 +211,63 @@ app.get("/reauthorize", (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
-	const code = req.query.code;
-	const returnedState = req.query.state;
-	const spotifyError = req.query.error;
+	const code = firstQueryValue(req.query.code);
+	const returnedState = firstQueryValue(req.query.state);
+	const spotifyError = firstQueryValue(req.query.error);
+
+	console.info("[oauth/callback] received", {
+		requestUrl: req.originalUrl,
+		secure: req.secure,
+		protocol: req.protocol,
+		xhrForwardedProto: req.get("x-forwarded-proto") || null,
+		hasCookieHeader: Boolean(req.headers.cookie),
+		sessionID: req.sessionID || null,
+		session: redactSession(req.session),
+		query: {
+			hasCode: Boolean(code),
+			state: returnedState || null,
+			error: spotifyError || null,
+		},
+	});
 
 	if (spotifyError === "access_denied") {
+		logCallbackFailure("spotify_access_denied", req, { spotifyError });
 		return res.redirect(frontendRedirect("/login?error=access_denied"));
 	}
 
 	if (spotifyError) {
+		logCallbackFailure("spotify_authorize_error", req, { spotifyError });
 		return res.redirect(
 			frontendRedirect("/login?error=authorization_failed"),
 		);
 	}
 
 	if (!code) {
+		logCallbackFailure("missing_authorization_code", req);
 		return res.redirect(frontendRedirect("/login?error=missing_code"));
 	}
 
-	if (
-		!returnedState ||
-		typeof returnedState !== "string" ||
-		returnedState !== req.session?.oauthState
-	) {
+	if (!returnedState) {
+		logCallbackFailure("missing_oauth_state", req);
+		return res.redirect(
+			frontendRedirect("/login?error=authorization_failed"),
+		);
+	}
+
+	if (!req.session?.oauthState) {
+		logCallbackFailure("session_oauth_state_missing", req, {
+			returnedState,
+		});
+		return res.redirect(
+			frontendRedirect("/login?error=authorization_failed"),
+		);
+	}
+
+	if (returnedState !== req.session.oauthState) {
+		logCallbackFailure("oauth_state_mismatch", req, {
+			returnedState,
+			expectedOAuthState: req.session.oauthState,
+		});
 		return res.redirect(
 			frontendRedirect("/login?error=authorization_failed"),
 		);
@@ -195,6 +298,10 @@ app.get("/callback", async (req, res) => {
 		const data = await response.json();
 
 		if (!response.ok) {
+			logCallbackFailure("token_exchange_failed", req, {
+				spotifyStatus: response.status,
+				spotifyBody: data,
+			});
 			return res.redirect(
 				frontendRedirect("/login?error=exchange_failed"),
 			);
@@ -209,31 +316,57 @@ app.get("/callback", async (req, res) => {
 		const profile = await profileResponse.json();
 
 		if (!profileResponse.ok || !profile?.id) {
+			logCallbackFailure("profile_fetch_failed", req, {
+				spotifyStatus: profileResponse.status,
+				spotifyBody: {
+					id: profile?.id || null,
+					error: profile?.error || null,
+				},
+			});
 			return res.redirect(frontendRedirect("/login?error=server_error"));
 		}
 
 		const expiresAt = new Date(Date.now() + data.expires_in * 1000);
 
-		await upsertSpotifyTokenForUser({
-			spotifyUserId: profile.id,
-			accessToken: data.access_token,
-			refreshToken: data.refresh_token,
-			tokenType: data.token_type,
-			expiresAt,
-		});
+		try {
+			await upsertSpotifyTokenForUser({
+				spotifyUserId: profile.id,
+				accessToken: data.access_token,
+				refreshToken: data.refresh_token,
+				tokenType: data.token_type,
+				expiresAt,
+			});
+		} catch (error) {
+			logCallbackFailure("database_failure", req, {
+				error,
+				spotifyUserId: profile.id,
+			});
+			return res.redirect(frontendRedirect("/login?error=server_error"));
+		}
 
 		req.session.spotifyUserId = profile.id;
 
 		req.session.save((error) => {
 			if (error) {
+				logCallbackFailure("session_save_failed_after_auth", req, {
+					error,
+					spotifyUserId: profile.id,
+				});
 				return res.redirect(
 					frontendRedirect("/login?error=server_error"),
 				);
 			}
 
+			console.info("[oauth/callback] success", {
+				failureId: null,
+				sessionID: req.sessionID,
+				spotifyUserId: profile.id,
+			});
+
 			return res.redirect(frontendRedirect("/"));
 		});
-	} catch {
+	} catch (error) {
+		logCallbackFailure("unhandled_callback_exception", req, { error });
 		return res.redirect(frontendRedirect("/login?error=server_error"));
 	}
 });
