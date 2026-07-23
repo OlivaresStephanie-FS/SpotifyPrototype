@@ -135,6 +135,8 @@ Users sign in with Spotify using OAuth 2.0 to securely access Spotify Search, th
 
 - 🎧 Spotify OAuth 2.0 Authorization Code Flow
 
+> **Note:** Spotify authentication is subject to Spotify Developer Mode restrictions. Only authorized Spotify accounts can complete login.
+
 ### Infrastructure
 
 - 🐳 Docker
@@ -232,6 +234,16 @@ SESSION_SECRET=
 7. Authentication status can be checked using `/auth/status` for the current session only.
 8. Authenticated users can log out with **Log Out**, which destroys only that browser session, clears its cookie, and deletes only that user’s stored Spotify token record.
 9. MongoDB Docker volume persistence keeps data available across ordinary `docker compose down` / `docker compose up` and container restarts until the user explicitly logs out.
+
+## Spotify Development Mode Limitation
+
+This application uses the official Spotify Web API. The Spotify application registered for this project is currently operating in **Development Mode**.
+
+In Development Mode, Spotify only allows explicitly authorized Spotify accounts (users added in the Spotify Developer Dashboard) to access the application. Users who are not authorized in the Spotify Developer Dashboard cannot successfully complete authentication, even if the OAuth flow begins normally.
+
+This is a Spotify platform restriction, not an application bug. The OAuth implementation and backend session handling work correctly for authorized accounts. See [docs/SPOTIFY_DEVELOPMENT_MODE.md](docs/SPOTIFY_DEVELOPMENT_MODE.md) for details.
+
+> To test the full functionality of this application, the Spotify account must be added to the application's authorized users list in the Spotify Developer Dashboard.
 
 ## 📡 Current API Endpoints
 
